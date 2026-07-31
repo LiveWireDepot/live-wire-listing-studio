@@ -34,6 +34,6 @@ export async function ebayJson(request:Request,path:string,init:RequestInit={}){
   const token=await accessToken(request),config=ebayConfig();
   const response=await fetch(config.apiBase+path,{...init,headers:{authorization:`Bearer ${token}`,"content-type":"application/json","content-language":"en-US",...(init.headers||{})}});
   const text=await response.text();let data:any={};try{data=text?JSON.parse(text):{}}catch{data={message:text}}
-  if(!response.ok)throw new Error(data?.errors?.map((e:any)=>e.message).join(" ")||data?.message||`eBay request failed (${response.status}).`);
+  if(!response.ok)throw new Error(data?.errors?.map((e:any)=>e.longMessage||e.message).join(" ")||data?.message||`eBay request failed (${response.status}).`);
   return data;
 }
