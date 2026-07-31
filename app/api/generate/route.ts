@@ -36,6 +36,7 @@ export async function POST(request: Request) {
     const clean=(value:string)=>String(value||"").replace(/^```(?:text|json)?\s*|\s*```$/g,"").trim();
     const title=clean(listing.title);let description=clean(listing.description).replace(/^(?:BLOCK\s*\d+[^\n]*|TITLE(?:\s+ONLY)?[^\n]*)\n+/i,"");
     if(!description.startsWith(title))description=`${title}\n\n${description}`;
-    return Response.json({title,description,facts:{category:clean(listing.category),maker:clean(listing.maker),model:clean(listing.model)}});
+    const category=clean(listing.category)||(()=>{const evidence=`${title} ${description}`.toLowerCase();if(/service (?:data|manual)|service literature/.test(evidence))return "Original radio service manual";if(/owner.?s manual|instruction manual|manual/.test(evidence))return "Vintage manual";if(/radio|receiver|phonograph/.test(evidence))return "Vintage radio or phonograph";if(/book/.test(evidence))return "Book";if(/map/.test(evidence))return "Map";return "Unidentified collectible"})();
+    return Response.json({title,description,facts:{category,maker:clean(listing.maker),model:clean(listing.model)}});
   }catch(error){return Response.json({error:error instanceof Error?error.message:"Unexpected listing error."},{status:500})}
 }
