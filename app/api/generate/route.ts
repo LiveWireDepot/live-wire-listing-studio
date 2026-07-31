@@ -18,7 +18,7 @@ export async function POST(request: Request) {
     const facts=Object.entries(body.facts??{}).filter(([,v])=>v?.trim()).map(([k,v])=>`${k}: ${v}`).join("\n")||"No additional user-supplied facts.";
     const content:any[]=[{type:"input_text",text:`${GUIDE}\n\nITEM GROUP: ${body.name||"Unnamed item"}\nUSER FACTS:\n${facts}\n\nAnalyze every image below as evidence for this single item and produce the finished listing.`}];
     for(const image_url of body.images.slice(0,12))content.push({type:"input_image",image_url,detail:"high"});
-    const result=await fetch("https://api.openai.com/v1/responses",{method:"POST",headers:{Authorization:`Bearer ${key}`,"Content-Type":"application/json"},body:JSON.stringify({model:"gpt-5.6-luna",input:[{role:"user",content}],reasoning:{effort:"medium"},text:{verbosity:"medium"}})});
+    const result=await fetch("https://api.openai.com/v1/responses",{method:"POST",headers:{Authorization:`Bearer ${key}`,"Content-Type":"application/json"},body:JSON.stringify({model:"gpt-5.6-sol",input:[{role:"user",content}],reasoning:{effort:"medium"},text:{verbosity:"medium"}})});
     const data:any=await result.json();
     if(!result.ok)return Response.json({error:data?.error?.message||"OpenAI could not generate this listing."},{status:result.status});
     const text=(data.output??[]).flatMap((item:any)=>item.content??[]).filter((item:any)=>item.type==="output_text").map((item:any)=>item.text).join("\n");
