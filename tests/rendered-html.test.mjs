@@ -19,6 +19,14 @@ test("keeps Sandbox Draft v2 review and completion state visible",async()=>{
   assert.match(css,/\.sandboxready/);
 });
 
+test("generates every remaining item without overwriting completed drafts",async()=>{
+  const [page,css]=await Promise.all([readFile(pageUrl,"utf8"),readFile(cssUrl,"utf8")]);
+  assert.match(page,/async function generateAll/);
+  assert.match(page,/!drafts\[g\.id\]/);
+  assert.match(page,/Generate all remaining/);
+  assert.match(css,/\.generateall/);
+});
+
 test("uploads approved photos before creating an unpublished offer",async()=>{
   const route=await readFile(routeUrl,"utf8");
   assert.match(route,/create_image_from_file/);
