@@ -7,6 +7,13 @@ export async function POST(request:Request){
     const postalCode=String(body.postalCode||"").trim();
     if(!/^\d{5}(?:-\d{4})?$/.test(postalCode))return Response.json({error:"Enter a valid U.S. ZIP code for the Sandbox warehouse."},{status:400});
     const {marketplaceId}=ebayConfig(),q=encodeURIComponent(marketplaceId);
+    const created:string[]=[];
+    let programs:any={programs:[]};
+    try{programs=await ebayJson(request,"/sell/account/v1/program/get_opted_in_programs")}catch{}
+    if(!(programs.programs??[]).some((program:any)=>program.programType==="SELLING_POLICY_MANAGEMENT")){
+      await ebayJson(request,"/sell/account/v1/program/opt_in",{method:"POST",body:JSON.stringify({programType:"SELLING_POLICY_MANAGEMENT"})});
+      created.push("business policy access");
+    }
     const checks=await Promise.allSettled([
       ebayJson(request,`/sell/account/v1/payment_policy?marketplace_id=${q}`),
       ebayJson(request,`/sell/account/v1/fulfillment_policy?marketplace_id=${q}`),
@@ -14,7 +21,7 @@ export async function POST(request:Request){
       ebayJson(request,"/sell/inventory/v1/location?limit=100")
     ]);
     const existing=(index:number,key:string)=>checks[index].status==="fulfilled"?((checks[index] as PromiseFulfilledResult<any>).value[key]??[]):[];
-    const created:string[]=[];
+
     if(!existing(0,"paymentPolicies").length){await ebayJson(request,"/sell/account/v1/payment_policy",{method:"POST",body:JSON.stringify({name:"Live Wire Sandbox Payment",description:"Test-only payment policy created by Live Wire Listing Studio.",marketplaceId,categoryTypes,immediatePay:false})});created.push("payment policy")}
     if(!existing(1,"fulfillmentPolicies").length){await ebayJson(request,"/sell/account/v1/fulfillment_policy",{method:"POST",body:JSON.stringify({name:"Live Wire Sandbox Shipping",description:"Test-only free shipping policy created by Live Wire Listing Studio.",marketplaceId,categoryTypes,handlingTime:{value:3,unit:"DAY"},shippingOptions:[{optionType:"DOMESTIC",costType:"FLAT_RATE",shippingServices:[{sortOrder:1,shippingCarrierCode:"USPS",shippingServiceCode:"USPSPriorityFlatRateBox",shippingCost:{value:"0.00",currency:"USD"},additionalShippingCost:{value:"0.00",currency:"USD"},freeShipping:true,buyerResponsibleForShipping:false,buyerResponsibleForPickup:false}]}],globalShipping:false,pickupDropOff:false,freightShipping:false})});created.push("shipping policy")}
     if(!existing(2,"returnPolicies").length){await ebayJson(request,"/sell/account/v1/return_policy",{method:"POST",body:JSON.stringify({name:"Live Wire Sandbox Returns",description:"Test-only 30-day buyer-paid return policy created by Live Wire Listing Studio.",marketplaceId,categoryTypes,returnsAccepted:true,returnPeriod:{value:30,unit:"DAY"},refundMethod:"MONEY_BACK",returnShippingCostPayer:"BUYER"})});created.push("return policy")}
