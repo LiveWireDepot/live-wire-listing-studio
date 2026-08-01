@@ -1,98 +1,111 @@
-# vinext-starter
+# Live Wire Listing Studio
 
-A clean full-stack starter running on
-[vinext](https://github.com/cloudflare/vinext), with optional Cloudflare D1 and
-Drizzle support.
+An evidence-first workflow for turning mixed batches of antique and vintage-item photographs into reviewable eBay listing drafts.
 
-## Prerequisites
+Live Wire Listing Studio groups related photographs, keeps thumbnails visible throughout review, captures seller-confirmed facts before writing prose, generates structured listing copy, and creates safe unpublished offers in the eBay Sandbox.
 
-- Node.js `>=22.13.0`
+## MVP status
 
-## Quick Start
+The complete guided workflow has been verified in production:
+
+1. Load personal photographs or a built-in sample batch.
+2. Review adaptive visual grouping and visible thumbnails.
+3. Reassign photographs when the proposed boundary is wrong.
+4. Confirm category, maker, model or title, condition, and testing notes.
+5. Generate an eBay title and guide-compliant description.
+6. Create and verify an unpublished eBay Sandbox offer.
+
+The production deployment is private. A demonstration can be provided on request.
+
+## Product principles
+
+- **Facts before prose:** seller-confirmed facts remain distinct from generated description text.
+- **Human review at consequential boundaries:** visual grouping suggests; the seller decides.
+- **Evidence stays visible:** each proposed item retains its associated image thumbnails.
+- **Expectation setting over hype:** condition language includes testing limits, photographed-detail disclaimers, and conservative claims.
+- **Safe marketplace integration:** the MVP uses eBay Sandbox and does not publish live listings.
+- **Local continuity:** the working batch, corrections, facts, and drafts persist on the current device.
+
+## Key features
+
+- Adaptive photo grouping without a preset images-per-item count
+- Manual photo reassignment and re-grouping
+- Device-local workspace persistence with IndexedDB
+- Visible per-item thumbnail review
+- Structured category, maker, model, and condition fields
+- Photo-assisted listing generation with deterministic formatting rules
+- Separate editable eBay title and description fields
+- One-time eBay Sandbox seller setup for policies and inventory location
+- Unpublished Sandbox inventory-offer creation
+- Guided six-check MVP test bench
+- Responsive warm-charcoal dark mode with a saved preference
+
+## Technology
+
+- TypeScript, React 19, and Next.js-compatible routing
+- Vinext and Vite for Cloudflare Worker-compatible builds
+- Cloudflare D1 with Drizzle ORM for OAuth token persistence
+- eBay OAuth, Account API, and Inventory API Sandbox integration
+- OpenAI-powered image and listing analysis
+- IndexedDB for device-local working state
+- Private deployment through OpenAI Sites
+
+## Safety and privacy
+
+Credentials are supplied only through hosted environment variables. They are not committed to this repository. OAuth access and refresh tokens are stored server-side; browser code never receives the eBay client secret.
+
+The current marketplace workflow creates **unpublished Sandbox offers only**. Publishing a real listing is intentionally outside the MVP and should require a separate, explicit approval step.
+
+## Local development
+
+Requirements:
+
+- Node.js 22.13 or newer
+- npm
 
 ```bash
 npm install
 npm run dev
-npm run build
 ```
 
-This starter does not use `wrangler.jsonc`.
+On Windows PowerShell, set the Wrangler log path before running Vinext:
 
-## Included Shape
-
-- edit site code under `app/`
-- `.openai/hosting.json` declares optional Sites D1 and R2 bindings
-- `vite.config.ts` simulates declared bindings for local development
-- `db/schema.ts` starts intentionally empty
-- `examples/d1/` contains an optional D1 example surface
-- `drizzle.config.ts` supports local migration generation when needed
-
-## Workspace Auth Headers
-
-OpenAI workspace sites can read the current user's email from
-`oai-authenticated-user-email`.
-
-SIWC-authenticated workspace sites may also receive
-`oai-authenticated-user-full-name` when the user's SIWC profile has a non-empty
-`name` claim. The full-name value is percent-encoded UTF-8 and is accompanied by
-`oai-authenticated-user-full-name-encoding: percent-encoded-utf-8`.
-
-Treat the full name as optional and fall back to email when it is absent:
-
-```tsx
-import { headers } from "next/headers";
-
-export default async function Home() {
-  const requestHeaders = await headers();
-  const email = requestHeaders.get("oai-authenticated-user-email");
-  const encodedFullName = requestHeaders.get("oai-authenticated-user-full-name");
-  const fullName =
-    encodedFullName &&
-    requestHeaders.get("oai-authenticated-user-full-name-encoding") ===
-      "percent-encoded-utf-8"
-      ? decodeURIComponent(encodedFullName)
-      : null;
-
-  const displayName = fullName ?? email;
-  // ...
-}
+```powershell
+$env:WRANGLER_LOG_PATH = ".wrangler/wrangler.log"
+npx.cmd vinext dev
 ```
 
-## Optional Dispatch-Owned ChatGPT Sign-In
+Validate a production build:
 
-Import the ready-to-use helpers from `app/chatgpt-auth.ts` when the site needs
-optional or required ChatGPT sign-in:
+```powershell
+$env:WRANGLER_LOG_PATH = ".wrangler/wrangler.log"
+npx.cmd vinext build
+```
 
-- Use `getChatGPTUser()` for optional signed-in UI.
-- Use `requireChatGPTUser(returnTo)` for server-rendered pages that should send
-  anonymous visitors through Sign in with ChatGPT.
-- Use `chatGPTSignInPath(returnTo)` and `chatGPTSignOutPath(returnTo)` for
-  browser links or actions.
-- Pass a same-origin relative `returnTo` path for the destination after sign-in
-  or sign-out. The helper validates and safely encodes it.
-- Mark protected pages with `export const dynamic = "force-dynamic"` because
-  they depend on per-request identity headers.
+## Hosted configuration
 
-Dispatch owns `/signin-with-chatgpt`, `/signout-with-chatgpt`, `/callback`, the
-OAuth cookies, and identity header injection. Do not implement app routes for
-those reserved paths. Routes that do not import and call the helper remain
-anonymous-compatible.
+The eBay integration expects hosted environment values including:
 
-SIWC establishes identity only; it does not prove workspace membership. Use the
-Sites hosting platform's access policy controls for workspace-wide restrictions,
-or enforce explicit server-side membership or allowlist checks.
+- `EBAY_ENVIRONMENT`
+- `EBAY_CLIENT_ID`
+- `EBAY_CLIENT_SECRET`
+- `EBAY_RUNAME`
+- `EBAY_MARKETPLACE_ID`
 
-Use SIWC for account pages, user-specific dashboards, saved records, and write
-actions tied to the current ChatGPT user. Leave public content anonymous.
+Do not place credential values in source files, screenshots, issues, or commits.
 
-## Useful Commands
+## Roadmap
 
-- `npm run dev`: start local development
-- `npm run build`: verify the vinext build output
-- `npm test`: build the starter and verify its rendered loading skeleton
-- `npm run db:generate`: generate Drizzle migrations after schema changes
+- Durable multi-device batch storage
+- Stronger vision, OCR, duplicate detection, and confidence scoring
+- Evidence-linked fact provenance and contradiction review
+- eBay taxonomy suggestions and item-specific mapping
+- Image upload and richer unpublished-draft management
+- Explicitly gated production publishing
+- Watched-folder intake and exception-based batch automation
 
-## Learn More
+## Project story
 
-- [vinext Documentation](https://github.com/cloudflare/vinext)
-- [Drizzle D1 Guide](https://orm.drizzle.team/docs/get-started/d1-new)
+This project grew from a practical antiques-listing problem: one photo folder can contain several visually similar manuals, radios, or pieces of equipment, but rigid image counts and prose-first automation introduce costly mistakes. Live Wire instead treats grouping and factual identification as reviewable evidence problems, then automates the repetitive writing and marketplace setup around those decisions.
+
+Built collaboratively by Mark Beebe and OpenAI Codex.
