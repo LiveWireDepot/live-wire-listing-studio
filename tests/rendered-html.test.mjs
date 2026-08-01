@@ -43,6 +43,18 @@ test("automates evidence-labeled item specifics with a human review gate",async(
   assert.match(draft,/aspectCount/);
   assert.match(css,/\.specificsreview/);
 });
+test("queues complete Sandbox drafts sequentially with persistent per-item outcomes",async()=>{
+  const [page,css]=await Promise.all([readFile(pageUrl,"utf8"),readFile(cssUrl,"utf8")]);
+  assert.match(page,/async function createAllDrafts/);
+  assert.match(page,/await createEbayDraft\(item\.id,true\)/);
+  assert.match(page,/Create all ready Sandbox drafts/);
+  assert.match(page,/!offers\[item\.id\]&&draftReady/);
+  assert.match(page,/draftErrors/);
+  assert.match(page,/generationStatus/);
+  assert.match(page,/Interrupted before completion; ready to retry/);
+  assert.match(css,/\.draftitemerror/);
+  assert.match(css,/\.itemstatus/);
+});
 test("uploads approved photos before creating an unpublished offer",async()=>{
   const route=await readFile(routeUrl,"utf8");
   assert.match(route,/create_image_from_file/);
