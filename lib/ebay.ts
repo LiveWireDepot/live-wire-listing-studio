@@ -11,7 +11,7 @@ export function ebayConfig(){
   const environment=e.EBAY_ENVIRONMENT||"sandbox",clientId=e.EBAY_CLIENT_ID,clientSecret=e.EBAY_CLIENT_SECRET,runame=e.EBAY_RUNAME,marketplaceId=e.EBAY_MARKETPLACE_ID||"EBAY_US";
   if(!clientId||!clientSecret||!runame)throw new Error("eBay Sandbox settings are incomplete.");
   const apiBase=environment==="production"?"https://api.ebay.com":"https://api.sandbox.ebay.com";
-  return{environment,clientId,clientSecret,runame,marketplaceId,apiBase,authorizeBase:environment==="production"?"https://auth.ebay.com/oauth2/authorize":"https://auth.sandbox.ebay.com/oauth2/authorize",tokenUrl:`${apiBase}/identity/v1/oauth2/token`};
+  return{environment,clientId,clientSecret,runame,marketplaceId,apiBase,mediaBase:environment==="production"?"https://apim.ebay.com":"https://apim.sandbox.ebay.com",authorizeBase:environment==="production"?"https://auth.ebay.com/oauth2/authorize":"https://auth.sandbox.ebay.com/oauth2/authorize",tokenUrl:`${apiBase}/identity/v1/oauth2/token`};
 }
 
 export function viewerEmail(request:Request){return request.headers.get("oai-authenticated-user-email")?.trim().toLowerCase()||null}
