@@ -27,6 +27,22 @@ test("generates every remaining item without overwriting completed drafts",async
   assert.match(css,/\.generateall/);
 });
 
+test("automates evidence-labeled item specifics with a human review gate",async()=>{
+  const [page,route,draft,css]=await Promise.all([
+    readFile(pageUrl,"utf8"),
+    readFile(new URL("../app/api/generate/route.ts",import.meta.url),"utf8"),
+    readFile(routeUrl,"utf8"),
+    readFile(cssUrl,"utf8"),
+  ]);
+  assert.match(route,/requiresConfirmation/);
+  assert.match(route,/confidence/);
+  assert.match(page,/Automated item specifics/);
+  assert.match(page,/Needs you|needs you/);
+  assert.match(page,/approvedAspects/);
+  assert.match(draft,/product:\{[^}]*aspects/);
+  assert.match(draft,/aspectCount/);
+  assert.match(css,/\.specificsreview/);
+});
 test("uploads approved photos before creating an unpublished offer",async()=>{
   const route=await readFile(routeUrl,"utf8");
   assert.match(route,/create_image_from_file/);
