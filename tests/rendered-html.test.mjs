@@ -97,3 +97,13 @@ test("locks live publishing to Production with a typed final gate",async()=>{
   assert.match(revise,/REVISE \$\{offerId\}/);
   assert.match(revise,/full-replacement/);
 });
+test("answers eBay deletion endpoint challenges and removes persisted authorization",async()=>{
+  const route=await readFile(new URL("../app/api/ebay/marketplace-account-deletion/route.ts",import.meta.url),"utf8");
+  assert.match(route,/challengeCode\+verificationToken\(\)\+endpoint/);
+  assert.match(route,/SHA-256/);
+  assert.match(route,/challengeResponse/);
+  assert.match(route,/MARKETPLACE_ACCOUNT_DELETION/);
+  assert.match(route,/x-ebay-signature/);
+  assert.match(route,/DELETE FROM ebay_connections/);
+  assert.match(route,/status:204/);
+});
