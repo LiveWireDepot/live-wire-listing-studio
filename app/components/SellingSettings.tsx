@@ -1,0 +1,7 @@
+"use client";
+type Props={ebay:any;defaults:Record<string,string>;onChange:(key:string,value:string)=>void};
+export default function SellingSettings({ebay,defaults,onChange}:Props){
+  if(!ebay?.connected)return null;
+  const field=(label:string,key:string,items:any[],id:string,name:string)=><label>{label}<select value={defaults[key]||items[0]?.[id]||""} onChange={event=>onChange(key,event.target.value)}>{items.map(item=><option key={item[id]} value={item[id]}>{item[name]||item[id]}</option>)}</select></label>;
+  return <details className="sellingsettings"><summary><span><b>Selling settings</b><small>Account defaults applied automatically to every ready item</small></span><strong>{ebay.ready?"Ready":"Needs setup"}</strong></summary><div className="settingsgrid">{field("Payment","paymentPolicyId",ebay.paymentPolicies,"paymentPolicyId","name")}{field("Shipping","fulfillmentPolicyId",ebay.fulfillmentPolicies,"fulfillmentPolicyId","name")}{field("Returns","returnPolicyId",ebay.returnPolicies,"returnPolicyId","name")}{field("Ship from","merchantLocationKey",ebay.locations,"merchantLocationKey","name")}</div><p>These are existing eBay account policies. Live Wire reads and assigns them but does not modify account-level terms during batch processing.</p></details>
+}

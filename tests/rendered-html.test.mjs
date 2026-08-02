@@ -107,3 +107,17 @@ test("answers eBay deletion endpoint challenges and removes persisted authorizat
   assert.match(route,/DELETE FROM ebay_connections/);
   assert.match(route,/status:204/);
 });
+test("uses saved account defaults and bounded parallel generation",async()=>{
+  const [page,settings,css]=await Promise.all([readFile(pageUrl,"utf8"),readFile(new URL("../app/components/SellingSettings.tsx",import.meta.url),"utf8"),readFile(cssUrl,"utf8")]);
+  assert.match(page,/policyDefaults/);
+  assert.match(page,/Math\.min\(3,pending\.length\)/);
+  assert.match(page,/Promise\.all\(Array\.from/);
+  assert.match(settings,/Selling settings/);
+  assert.match(settings,/Payment/);
+  assert.match(settings,/Shipping/);
+  assert.match(settings,/Returns/);
+  assert.match(settings,/Ship from/);
+  assert.match(css,/\.sellingsettings/);
+  assert.match(page,/BatchCommandCenter/);
+  assert.match(css,/\.batchcommand/);
+});
