@@ -37,3 +37,12 @@ export async function ebayJson(request:Request,path:string,init:RequestInit={}){
   if(!response.ok)throw new Error(data?.errors?.map((e:any)=>e.longMessage||e.message).join(" ")||data?.message||`eBay request failed (${response.status}).`);
   return data;
 }
+
+export async function requireLeafCategory(request:Request,categoryId:string){
+  const config=ebayConfig();
+  if(config.environment!=="production")return{categoryId,leaf:true};
+  const tree=await ebayJson(request,`/commerce/taxonomy/v1/get_default_category_tree_id?marketplace_id=${encodeURIComponent(config.marketplaceId)}`);
+  const subtree=await ebayJson(request,`/commerce/taxonomy/v1/category_tree/${encodeURIComponent(tree.categoryTreeId)}/get_category_subtree?category_id=${encodeURIComponent(categoryId)}`);
+  if(subtree.categorySubtreeNode?.leafCategoryTreeNode!==true)throw new Error("Choose a more specific eBay category. The selected category is a parent category and cannot contain listings.");
+  return{categoryId,leaf:true,categoryName:subtree.categorySubtreeNode?.category?.categoryName||""};
+}
