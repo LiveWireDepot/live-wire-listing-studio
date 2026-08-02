@@ -63,6 +63,8 @@ test("keeps completed workflow chrome compact and specifics collapsible",async()
   assert.match(css,/\.testbench\.complete \.testchecks\{display:none\}/);
   assert.match(css,/\.listingcard textarea\{min-height:360px\}/);
   assert.match(css,/\.specificsreview summary/);
+  assert.match(page,/className="listinghead"/);
+  assert.doesNotMatch(css,/\.listingcard>div\{/);
 });
 test("uploads approved photos before creating an unpublished offer",async()=>{
   const route=await readFile(routeUrl,"utf8");
