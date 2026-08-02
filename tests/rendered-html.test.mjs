@@ -55,6 +55,15 @@ test("queues complete Sandbox drafts sequentially with persistent per-item outco
   assert.match(css,/\.draftitemerror/);
   assert.match(css,/\.itemstatus/);
 });
+test("keeps completed workflow chrome compact and specifics collapsible",async()=>{
+  const [page,css]=await Promise.all([readFile(pageUrl,"utf8"),readFile(cssUrl,"utf8")]);
+  assert.match(page,/testbench \$\{complete===checks\.length\?"complete"/);
+  assert.match(page,/<details className="specificsreview"/);
+  assert.match(page,/open=\{unresolved\(g\.id\)>0\|\|undefined\}/);
+  assert.match(css,/\.testbench\.complete \.testchecks\{display:none\}/);
+  assert.match(css,/\.listingcard textarea\{min-height:360px\}/);
+  assert.match(css,/\.specificsreview summary/);
+});
 test("uploads approved photos before creating an unpublished offer",async()=>{
   const route=await readFile(routeUrl,"utf8");
   assert.match(route,/create_image_from_file/);
