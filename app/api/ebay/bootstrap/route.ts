@@ -3,10 +3,11 @@ export const runtime="edge";
 const categoryTypes=[{name:"ALL_EXCLUDING_MOTORS_VEHICLES"}];
 export async function POST(request:Request){
   try{
+    const config=ebayConfig();if(config.environment!=="sandbox")return Response.json({error:"Automatic seller setup is locked in Production mode."},{status:409});
     const body=await request.json() as {postalCode?:string};
     const postalCode=String(body.postalCode||"").trim();
     if(!/^\d{5}(?:-\d{4})?$/.test(postalCode))return Response.json({error:"Enter a valid U.S. ZIP code for the Sandbox warehouse."},{status:400});
-    const {marketplaceId}=ebayConfig(),q=encodeURIComponent(marketplaceId);
+    const {marketplaceId}=config,q=encodeURIComponent(marketplaceId);
     const created:string[]=[];
     let programs:any={programs:[]};
     try{programs=await ebayJson(request,"/sell/account/v1/program/get_opted_in_programs")}catch{}

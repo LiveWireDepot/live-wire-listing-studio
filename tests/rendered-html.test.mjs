@@ -12,7 +12,7 @@ test("keeps Sandbox Draft v2 review and completion state visible",async()=>{
   assert.match(page,/Draft preflight/);
   assert.match(page,/Photos attached/);
   assert.match(page,/Recommended Sandbox test category \(183077\)/);
-  assert.match(page,/Unpublished Sandbox draft created/);
+  assert.match(page,/Unpublished \{ebay\?\.environment/);
   assert.match(page,/setOffers/);
   assert.match(page,/offerInputs,offers/);
   assert.match(css,/\.offerreceipt/);
@@ -47,7 +47,7 @@ test("queues complete Sandbox drafts sequentially with persistent per-item outco
   const [page,css]=await Promise.all([readFile(pageUrl,"utf8"),readFile(cssUrl,"utf8")]);
   assert.match(page,/async function createAllDrafts/);
   assert.match(page,/await createEbayDraft\(item\.id,true\)/);
-  assert.match(page,/Create all ready Sandbox drafts/);
+  assert.match(page,/Create all ready \$\{ebay\?\.environment/);
   assert.match(page,/!offers\[item\.id\]&&draftReady/);
   assert.match(page,/draftErrors/);
   assert.match(page,/generationStatus/);
@@ -76,4 +76,24 @@ test("uploads approved photos before creating an unpublished offer",async()=>{
   assert.match(route,/createOrReplace|inventory_item/);
   assert.match(route,/published:false/);
   assert.match(route,/price<=0/);
+});
+test("locks live publishing to Production with a typed final gate",async()=>{
+  const [page,publish,ebay,category,revise]=await Promise.all([
+    readFile(pageUrl,"utf8"),
+    readFile(new URL("../app/api/ebay/publish-offer/route.ts",import.meta.url),"utf8"),
+    readFile(new URL("../lib/ebay.ts",import.meta.url),"utf8"),
+    readFile(new URL("../app/api/ebay/categories/route.ts",import.meta.url),"utf8"),
+    readFile(new URL("../app/api/ebay/revise-offer/route.ts",import.meta.url),"utf8"),
+  ]);
+  assert.match(ebay,/row\.environment!==config\.environment/);
+  assert.match(page,/PRODUCTION · LIVE/);
+  assert.match(page,/Review fees \+ publish live/);
+  assert.match(page,/FINAL LIVE PUBLISH GATE/);
+  assert.match(publish,/environment!=="production"/);
+  assert.match(publish,/PUBLISH \$\{offerId\}/);
+  assert.match(publish,/get_listing_fees/);
+  assert.match(publish,/\/publish/);
+  assert.match(category,/get_category_suggestions/);
+  assert.match(revise,/REVISE \$\{offerId\}/);
+  assert.match(revise,/full-replacement/);
 });
