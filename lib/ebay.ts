@@ -52,7 +52,7 @@ export async function categoryConditions(request:Request,categoryId:string){
   if(config.environment!=="production")return[{conditionId:"5000",condition:"USED_GOOD",description:"Used"}];
   const data=await ebayJson(request,`/sell/metadata/v1/marketplace/${encodeURIComponent(config.marketplaceId)}/get_item_condition_policies?filter=${encodeURIComponent(`categoryIds:{${categoryId}}`)}`);
   const policy=(data.itemConditionPolicies??[]).find((item:any)=>String(item.categoryId)===categoryId)||data.itemConditionPolicies?.[0];
-  return(policy?.conditionValues??[]).map((item:any)=>({conditionId:String(item.conditionId),condition:CONDITION_ENUM_BY_ID[String(item.conditionId)]||"",description:String(item.conditionDescription||item.conditionDisplayName||item.conditionId)})).filter((item:any)=>item.condition);
+  return(policy?.itemConditions??[]).map((item:any)=>({conditionId:String(item.conditionId),condition:CONDITION_ENUM_BY_ID[String(item.conditionId)]||"",description:String(item.conditionDescription||item.conditionDisplayName||item.conditionId)})).filter((item:any)=>item.condition);
 }
 export async function requireAllowedCondition(request:Request,categoryId:string,condition:string){
   const allowed=await categoryConditions(request,categoryId);
