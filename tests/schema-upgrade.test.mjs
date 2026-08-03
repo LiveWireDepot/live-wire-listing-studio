@@ -1,0 +1,4 @@
+import test from "node:test";import assert from "node:assert/strict";import {readFile} from "node:fs/promises";
+const migration=await readFile(new URL("../drizzle/0002_first_catseye.sql",import.meta.url),"utf8"),persistence=await readFile(new URL("../lib/studio-persistence.ts",import.meta.url),"utf8"),items=await readFile(new URL("../app/api/studio/items/route.ts",import.meta.url),"utf8");
+test("schema upgrade indexes real identity and operation lookup paths",()=>{assert.match(migration,/idx_studio_items_remote_identity/);assert.match(migration,/idx_studio_operations_key_attempt/);assert.match(migration,/idx_publication_manifests_item_status/);assert.match(migration,/PRAGMA optimize/)});
+test("two sessions claim one operation attempt and photo replacement is deterministic",()=>{assert.match(persistence,/INSERT OR IGNORE INTO studio_operations/);assert.match(persistence,/claimed\.id!==id/);assert.match(items,/DELETE FROM studio_photos WHERE item_id=\?/)});
