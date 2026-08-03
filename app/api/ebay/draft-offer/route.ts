@@ -60,12 +60,12 @@ export async function PATCH(request:Request){
     await requireAllowedCondition(request,categoryId,condition);
     const offer=await ebayJson(request,`/sell/inventory/v1/offer/${encodeURIComponent(offerId)}`);
     if(offer.listing?.listingId)return Response.json({error:"This offer is already live. Use the revision workflow instead."},{status:409});
-    const updated={...offer,categoryId};
+    const price=Number(body.price),updated={...offer,categoryId,...(price>0?{pricingSummary:{...offer.pricingSummary,price:{value:price.toFixed(2),currency:"USD"}}}:{})};
     const inventoryItem=await ebayJson(request,`/sell/inventory/v1/inventory_item/${encodeURIComponent(offer.sku)}`);
     const inventoryUpdate={...inventoryItem,condition,packageWeightAndSize:packageDetails}; delete inventoryUpdate.sku; delete inventoryUpdate.locale;
     await ebayJson(request,`/sell/inventory/v1/inventory_item/${encodeURIComponent(offer.sku)}`,{method:"PUT",body:JSON.stringify(inventoryUpdate)});
     for(const key of ["offerId","status","listing","warnings"] as const)delete updated[key];
     await ebayJson(request,`/sell/inventory/v1/offer/${encodeURIComponent(offerId)}`,{method:"PUT",body:JSON.stringify(updated)});
-    return Response.json({updated:true,offerId,categoryId,condition,packageReady:true,published:false},{headers:{"cache-control":"no-store"}});
+    return Response.json({updated:true,offerId,categoryId,condition,packageReady:true,price:price>0?price.toFixed(2):offer.pricingSummary?.price?.value,published:false},{headers:{"cache-control":"no-store"}});
   }catch(error){return Response.json({error:error instanceof Error?error.message:"Unable to update the unpublished offer category."},{status:400})}
 }
