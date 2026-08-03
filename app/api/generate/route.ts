@@ -1,3 +1,4 @@
+import {parseGeneratedListing} from "../../../lib/generated-listing";
 export const runtime = "edge";
 const GUIDE = `You write finished eBay listings for Mark Beebe's store, Live Wire Antiques. Treat every rule below as authoritative.
 
@@ -33,8 +34,8 @@ export async function POST(request: Request) {
     if(!result.ok)return Response.json({error:data?.error?.message||"OpenAI could not generate this listing."},{status:result.status});
     const output=(data.output??[]).flatMap((item:any)=>item.content??[]).find((item:any)=>item.type==="output_text")?.text;
     if(!output)return Response.json({error:"The model returned no listing text."},{status:502});
-    const listing=JSON.parse(output);
-    if(!listing.title||listing.title.length>80||!listing.description)return Response.json({error:"The generated listing did not pass title and description validation. Please try again."},{status:502});
+    let listing;
+    try{listing=parseGeneratedListing(output)}catch(error){return Response.json({error:error instanceof Error?error.message:"The generated listing was invalid."},{status:502})}
     const clean=(value:string)=>String(value||"").replace(/^```(?:text|json)?\s*|\s*```$/g,"").trim();
     const title=clean(listing.title);let description=clean(listing.description).replace(/^(?:BLOCK\s*\d+[^\n]*|TITLE(?:\s+ONLY)?[^\n]*)\n+/i,"");
     if(!description.startsWith(title))description=`${title}\n\n${description}`;

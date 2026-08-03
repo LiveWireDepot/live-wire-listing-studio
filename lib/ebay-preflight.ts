@@ -1,4 +1,5 @@
 import {ebayConfig,ebayJson,requireAllowedCondition,requireLeafCategory} from "./ebay";
+import {findInaccessibleImages} from "./image-validation";
 
 export type PreflightCheck={id:string;label:string;status:"pass"|"fail"|"warning";message:string};
 const pass=(id:string,label:string,message:string):PreflightCheck=>({id,label,status:"pass",message});
@@ -15,7 +16,8 @@ export async function runEbayPreflight(request:Request,offerId:string){
   const title=String(inventoryItem.product?.title||"").trim(),description=String(inventoryItem.product?.description||"").trim(),images=inventoryItem.product?.imageUrls??[];
   checks.push(title&&title.length<=80?pass("title","Title",`${title.length}/80 characters.`):fail("title","Title",title?"Shorten the title to 80 characters or fewer.":"Add a title."));
   checks.push(description?pass("description","Description","Listing description is present."):fail("description","Description","Add a listing description."));
-  checks.push(images.length?pass("photos","Photos",`${images.length} photo${images.length===1?"":"s"} attached.`):fail("photos","Photos","Attach at least one photo."));
+  if(!images.length)checks.push(fail("photos","Photos","Attach at least one photo."));
+  else{const inaccessible=await findInaccessibleImages(images);checks.push(inaccessible.length?fail("photos","Photos",`${inaccessible.length} photo${inaccessible.length===1?" is":"s are"} not publicly retrievable.`):pass("photos","Photos",`${images.length} photo${images.length===1?"":"s"} attached and retrievable.`))}
   const quantity=Number(inventoryItem.availability?.shipToLocationAvailability?.quantity);
   checks.push(quantity>0?pass("quantity","Quantity",`${quantity} available.`):fail("quantity","Quantity","Set available quantity to at least 1."));
   const price=Number(offer.pricingSummary?.price?.value),currency=String(offer.pricingSummary?.price?.currency||"");
