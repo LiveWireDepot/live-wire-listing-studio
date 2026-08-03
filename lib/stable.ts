@@ -1,0 +1,2 @@
+export function stableJson(value:any):string{if(value===null||typeof value!=="object")return JSON.stringify(value);if(Array.isArray(value))return`[${value.map(stableJson).join(",")}]`;return`{${Object.keys(value).sort().map(key=>`${JSON.stringify(key)}:${stableJson(value[key])}`).join(",")}}`}
+export async function sha256(value:string|ArrayBuffer){const bytes=typeof value==="string"?new TextEncoder().encode(value):value;return[...new Uint8Array(await crypto.subtle.digest("SHA-256",bytes))].map(byte=>byte.toString(16).padStart(2,"0")).join("")}
