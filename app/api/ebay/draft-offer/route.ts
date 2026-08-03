@@ -49,6 +49,8 @@ export async function PATCH(request:Request){
     const body=await request.json() as any,offerId=String(body.offerId||"").trim(),categoryId=String(body.categoryId||"").trim();
     if(!offerId||!categoryId)return Response.json({error:"Missing offerId or categoryId."},{status:400});
     await requireLeafCategory(request,categoryId);
+    const condition=String(body.condition||"").trim();
+    await requireAllowedCondition(request,categoryId,condition);
     const offer=await ebayJson(request,`/sell/inventory/v1/offer/${encodeURIComponent(offerId)}`);
     if(offer.listing?.listingId)return Response.json({error:"This offer is already live. Use the revision workflow instead."},{status:409});
     const updated={...offer,categoryId};
