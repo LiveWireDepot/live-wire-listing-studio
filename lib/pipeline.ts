@@ -2,27 +2,7 @@ export type Provenance="observed"|"user"|"researched"|"inference";
 export type FactClaim={field:string;value:string;provenance:Provenance;confidence:number;evidence:string[];contradictions:string[]};
 export type PairSignals={visual:number;ocr:number;sequence:number;features:number;background:number;mustLink?:boolean;cannotLink?:boolean};
 export const categoryRoutes=["radios","telegraph","telephone","test-equipment","service-manuals","books-ephemera","parts-lots","military-electronics","general-antiques"] as const;
-export function groupingScore(s:PairSignals){
-  if(s.cannotLink)return 0;if(s.mustLink)return 1;
-  return .42*s.visual+.23*s.ocr+.18*s.sequence+.10*s.features+.07*s.background;
-}
-export function languagePolicy(confidence:number){
-  if(confidence>=.95)return "fact";
-  if(confidence>=.8)return "qualified";
-  return "review";
-}
-export function shouldResearch(input:{identityConfidence:number;missingMaterialFacts:boolean;valuationRequested:boolean}){
-  return input.identityConfidence<.85||input.missingMaterialFacts||input.valuationRequested;
-}
-export function validateListing(input:{approved:boolean;title:string;blocks:string[];body:string;unresolvedClaims:FactClaim[];isServiceManual:boolean}){
-  const errors:string[]=[];
-  if(!input.approved)errors.push("Human approval is required.");
-  if(input.title.length>80)errors.push("Title exceeds 80 characters.");
-  if(input.blocks.length!==2)errors.push("Exactly two copy blocks are required.");
-  for(const section of ["KEY FEATURES","CONDITION","PERFECT FOR"])if(!input.body.includes(section))errors.push(`Missing ${section}.`);
-  if(!/photos|photographs/i.test(input.body))errors.push("Photographs must be referenced.");
-  if(/\b(rare|must-have|won't last|act now|guaranteed)\b/i.test(input.body))errors.push("Unsupported hype or urgency detected.");
-  if(input.unresolvedClaims.some(c=>c.confidence<.8))errors.push("Low-confidence claims remain unresolved.");
-  if(input.isServiceManual&&!/manual/i.test(input.body))errors.push("Service-manual note is required.");
-  return {ok:errors.length===0,errors};
-}
+export function groupingScore(s:PairSignals){if(s.cannotLink)return 0;if(s.mustLink)return 1;return .42*s.visual+.23*s.ocr+.18*s.sequence+.10*s.features+.07*s.background}
+export function languagePolicy(confidence:number){if(confidence>=.95)return "fact";if(confidence>=.8)return "qualified";return "review"}
+export function shouldResearch(input:{identityConfidence:number;missingMaterialFacts:boolean;valuationRequested:boolean}){return input.identityConfidence<.85||input.missingMaterialFacts||input.valuationRequested}
+export function validateListing(input:{approved:boolean;title:string;blocks:string[];body:string;unresolvedClaims:FactClaim[];isServiceManual:boolean}){const errors:string[]=[];if(!input.approved)errors.push("Human approval is required.");if(input.title.length>80)errors.push("Title exceeds 80 characters.");if(input.blocks.length!==2)errors.push("Exactly two copy blocks are required.");for(const section of ["KEY FEATURES","CONDITION","PERFECT FOR"])if(!input.body.includes(section))errors.push(`Missing ${section}.`);if(!/photos|photographs/i.test(input.body))errors.push("Photographs must be referenced.");if(/\b(rare|must-have|won't last|act now|guaranteed)\b/i.test(input.body))errors.push("Unsupported hype or urgency detected.");if(input.unresolvedClaims.some(c=>c.confidence<.8))errors.push("Low-confidence claims remain unresolved.");if(input.isServiceManual&&!/manual/i.test(input.body))errors.push("Service-manual note is required.");return{ok:errors.length===0,errors}}
