@@ -90,7 +90,9 @@ test("locks live publishing to Production with a typed final gate",async()=>{
   assert.match(ebay,/row\.environment!==config\.environment/);
   assert.match(page,/PRODUCTION · LIVE/);
   assert.match(page,/Review fees \+ publish live/);
-  assert.match(page,/FINAL LIVE PUBLISH GATE/);
+  assert.match(page,/PUBLISH LIVE ON EBAY/);
+  assert.match(page,/Batch Command Center/);
+  assert.match(page,/BATCH LIVE PUBLISH GATE/);
   assert.match(publish,/environment!=="production"/);
   assert.match(publish,/PUBLISH \$\{offerId\}/);
   assert.match(publish,/get_listing_fees/);
