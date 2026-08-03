@@ -1,30 +1,31 @@
 # Live Wire Listing Studio
 
-An evidence-first workflow for turning mixed batches of antique and vintage-item photographs into reviewable eBay listing drafts.
+An evidence-first production workflow for turning mixed batches of antique and vintage-item photographs into prepared, reviewable, and deliberately published eBay listings.
 
-Live Wire Listing Studio groups related photographs, keeps thumbnails visible throughout review, captures seller-confirmed facts before writing prose, generates structured listing copy, and creates safe unpublished offers in the eBay Sandbox.
+Live Wire Listing Studio groups related photographs, keeps thumbnails visible throughout review, captures seller-confirmed facts before writing prose, generates structured listing copy, prepares category-specific marketplace data, creates unpublished Production offers, validates them against eBay, and requires final human approval before live publication.
 
-## MVP status
+**Portfolio case study:** [From Listing Chore to Seller Operating System](docs/PRODUCT_CASE_STUDY.md)
 
-The complete guided workflow has been verified in production:
+## Current status
 
-1. Load personal photographs or a built-in sample batch.
-2. Review adaptive visual grouping and visible thumbnails.
-3. Reassign photographs when the proposed boundary is wrong.
-4. Confirm category, maker, model or title, condition, and testing notes.
-5. Generate an eBay title and guide-compliant description.
-6. Create and verify an unpublished eBay Sandbox offer.
+The private Production application now supports:
 
-The production deployment is private. A demonstration can be provided on request.
+1. Load and visually group personal photographs.
+2. Confirm evidence-backed facts and generate listing copy.
+3. Prepare items by resolving an eBay leaf category, allowed condition, required item specifics, policies, package data, images, and approved price.
+4. Create a safe unpublished Production offer.
+5. Run full remote preflight and review the exact listing and fees.
+6. Publish only after explicit final approval, then reconcile the live listing.
 
+A measured multi-item Production canary is the next milestone. The current throughput target is 40–50 prepared listings in a short supervised batch session; that target has not yet been validated.
 ## Product principles
 
 - **Facts before prose:** seller-confirmed facts remain distinct from generated description text.
 - **Human review at consequential boundaries:** visual grouping suggests; the seller decides.
 - **Evidence stays visible:** each proposed item retains its associated image thumbnails.
 - **Expectation setting over hype:** condition language includes testing limits, photographed-detail disclaimers, and conservative claims.
-- **Safe marketplace integration:** the MVP uses eBay Sandbox and does not publish live listings.
-- **Local continuity:** the working batch, corrections, facts, and drafts persist on the current device.
+- **Safe marketplace integration:** Production publishing requires preparation, an unpublished offer, full preflight, an immutable manifest, fee review, and explicit final approval.
+- **Durable continuity:** Production items, photographs, remote identities, operations, and publication manifests persist server-side, with device-local continuity for active work.
 
 ## Key features
 
@@ -54,7 +55,7 @@ The production deployment is private. A demonstration can be provided on request
 
 Credentials are supplied only through hosted environment variables. They are not committed to this repository. OAuth access and refresh tokens are stored server-side; browser code never receives the eBay client secret.
 
-The current marketplace workflow creates **unpublished Sandbox offers only**. Publishing a real listing is intentionally outside the MVP and should require a separate, explicit approval step.
+The Production workflow can publish real listings only after an unpublished offer passes full preflight and the seller approves the exact immutable publication manifest. No batch action silently bypasses that final gate.
 
 ## Local development
 
@@ -96,12 +97,12 @@ Do not place credential values in source files, screenshots, issues, or commits.
 
 ## Roadmap
 
-- Durable multi-device batch storage
+- Multi-user roles and broader cross-device batch management
 - Stronger vision, OCR, duplicate detection, and confidence scoring
 - Evidence-linked fact provenance and contradiction review
-- eBay taxonomy suggestions and item-specific mapping
+- Stronger taxonomy ranking and automatic item-specific mapping
 - Image upload and richer unpublished-draft management
-- Explicitly gated production publishing
+- Measured multi-item Production canary and throughput benchmarking
 - Watched-folder intake and exception-based batch automation
 
 ## Project story
