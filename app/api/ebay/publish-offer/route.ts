@@ -1,4 +1,4 @@
-import {ebayConfig,ebayJson,requireLeafCategory} from "../../../../lib/ebay";
+import {ebayConfig,ebayJson,requireLeafCategory,requireAllowedCondition} from "../../../../lib/ebay";
 export const runtime="edge";
 export async function POST(request:Request){
   try{
@@ -9,6 +9,8 @@ export async function POST(request:Request){
     if(!offerId)return Response.json({error:"Missing offerId."},{status:400});
     const offer=await ebayJson(request,`/sell/inventory/v1/offer/${encodeURIComponent(offerId)}`);
     await requireLeafCategory(request,String(offer.categoryId||""));
+    const inventoryItem=await ebayJson(request,`/sell/inventory/v1/inventory_item/${encodeURIComponent(offer.sku)}`);
+    await requireAllowedCondition(request,String(offer.categoryId||""),String(inventoryItem.condition||""));
     if(body.preview){
       const fees=await ebayJson(request,"/sell/inventory/v1/offer/get_listing_fees",{method:"POST",body:JSON.stringify({offers:[{offerId}]})});
       return Response.json({readyToPublish:true,environment:config.environment,offerId,offer,fees,requiredConfirmation:`PUBLISH ${offerId}`},{headers:{"cache-control":"no-store"}});

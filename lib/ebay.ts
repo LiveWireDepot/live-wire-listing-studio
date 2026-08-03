@@ -46,3 +46,16 @@ export async function requireLeafCategory(request:Request,categoryId:string){
   if(subtree.categorySubtreeNode?.leafCategoryTreeNode!==true)throw new Error("Choose a more specific eBay category. The selected category is a parent category and cannot contain listings.");
   return{categoryId,leaf:true,categoryName:subtree.categorySubtreeNode?.category?.categoryName||""};
 }
+export const CONDITION_ENUM_BY_ID:Record<string,string>={"1000":"NEW","1500":"NEW_OTHER","1750":"NEW_WITH_DEFECTS","2000":"CERTIFIED_REFURBISHED","2010":"EXCELLENT_REFURBISHED","2020":"VERY_GOOD_REFURBISHED","2030":"GOOD_REFURBISHED","2500":"SELLER_REFURBISHED","2750":"LIKE_NEW","2990":"PRE_OWNED_EXCELLENT","3000":"USED_EXCELLENT","3010":"PRE_OWNED_FAIR","4000":"USED_VERY_GOOD","5000":"USED_GOOD","6000":"USED_ACCEPTABLE","7000":"FOR_PARTS_OR_NOT_WORKING"};
+export async function categoryConditions(request:Request,categoryId:string){
+  const config=ebayConfig();
+  if(config.environment!=="production")return[{conditionId:"5000",condition:"USED_GOOD",description:"Used"}];
+  const data=await ebayJson(request,`/sell/metadata/v1/marketplace/${encodeURIComponent(config.marketplaceId)}/get_item_condition_policies?filter=${encodeURIComponent(`categoryIds:{${categoryId}}`)}`);
+  const policy=(data.itemConditionPolicies??[]).find((item:any)=>String(item.categoryId)===categoryId)||data.itemConditionPolicies?.[0];
+  return(policy?.conditionValues??[]).map((item:any)=>({conditionId:String(item.conditionId),condition:CONDITION_ENUM_BY_ID[String(item.conditionId)]||"",description:String(item.conditionDescription||item.conditionDisplayName||item.conditionId)})).filter((item:any)=>item.condition);
+}
+export async function requireAllowedCondition(request:Request,categoryId:string,condition:string){
+  const allowed=await categoryConditions(request,categoryId);
+  if(!allowed.some((item:any)=>item.condition===condition))throw new Error("Choose an item condition allowed by the selected eBay category.");
+  return allowed;
+}
