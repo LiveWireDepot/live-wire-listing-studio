@@ -32,6 +32,7 @@ export async function runEbayPreflight(request:Request,offerId:string){
     if(!id){checks.push(fail(field,label,`Select a ${label.toLowerCase()}.`));continue}
     try{const policy=await ebayJson(request,`/sell/account/v1/${path}/${encodeURIComponent(id)}`);checks.push(pass(field,label,`${policy.name||id} is available for ${policy.marketplaceId||config.marketplaceId}.`))}catch(error){checks.push(fail(field,label,error instanceof Error?error.message:`The selected ${label.toLowerCase()} is unavailable.`))}
   }
+  checks.push(offer.listingPolicies?.bestOfferTerms?.bestOfferEnabled===true?pass("bestOffer","Best Offer","Buyers can submit offers."):fail("bestOffer","Best Offer","Enable Best Offer for this listing."));
   const locationKey=String(offer.merchantLocationKey||"");
   if(!locationKey)checks.push(fail("location","Inventory location","Select an inventory location."));
   else try{const location=await ebayJson(request,`/sell/inventory/v1/location/${encodeURIComponent(locationKey)}`);checks.push(location.merchantLocationStatus==="DISABLED"?fail("location","Inventory location",`${locationKey} is disabled.`):pass("location","Inventory location",`${location.name||locationKey} is enabled.`))}catch(error){checks.push(fail("location","Inventory location",error instanceof Error?error.message:"The inventory location is unavailable."))}

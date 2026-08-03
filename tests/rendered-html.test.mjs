@@ -78,6 +78,11 @@ test("uploads approved photos before creating an unpublished offer",async()=>{
   assert.match(route,/price<=0/);
   assert.match(route,/const condition=String\(body\.condition/);
   assert.match(route,/packageWeightAndSize/);
+  assert.match(route,/bestOfferTerms/);
+  assert.match(route,/bestOfferEnabled/);
+  const page=await readFile(pageUrl,"utf8");
+  assert.match(page,/Accept Best Offers/);
+  assert.match(page,/stale Sandbox offer link/);
 });
 test("locks live publishing to Production with a typed final gate",async()=>{
   const [page,publish,ebay,category,revise]=await Promise.all([

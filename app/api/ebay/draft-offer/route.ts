@@ -46,7 +46,7 @@ export async function POST(request:Request){
     const imageUrls=await uploadImages(request,images);
     const aspects=Object.fromEntries(Object.entries(body.aspects??{}).map(([name,values])=>[String(name).trim().slice(0,40),(Array.isArray(values)?values:[values]).map(value=>String(value).trim().slice(0,50)).filter(Boolean)]).filter(([name,values])=>name&&(values as string[]).length));
     await ebayJson(request,`/sell/inventory/v1/inventory_item/${encodeURIComponent(sku)}`,{method:"PUT",body:JSON.stringify({availability:{shipToLocationAvailability:{quantity}},condition:body.condition||"USED_GOOD",packageWeightAndSize:packageDetails,product:{title:String(body.title).slice(0,80),description:String(body.description),imageUrls,...(Object.keys(aspects).length?{aspects}:{})}})});
-    const offer=await ebayJson(request,"/sell/inventory/v1/offer",{method:"POST",body:JSON.stringify({sku,marketplaceId:config.marketplaceId,format:"FIXED_PRICE",availableQuantity:quantity,categoryId:String(body.categoryId),merchantLocationKey:String(body.merchantLocationKey),listingDescription:String(body.description),listingDuration:"GTC",listingPolicies:{paymentPolicyId:String(body.paymentPolicyId),fulfillmentPolicyId:String(body.fulfillmentPolicyId),returnPolicyId:String(body.returnPolicyId)},pricingSummary:{price:{currency:"USD",value:price.toFixed(2)}}})});
+    const offer=await ebayJson(request,"/sell/inventory/v1/offer",{method:"POST",body:JSON.stringify({sku,marketplaceId:config.marketplaceId,format:"FIXED_PRICE",availableQuantity:quantity,categoryId:String(body.categoryId),merchantLocationKey:String(body.merchantLocationKey),listingDescription:String(body.description),listingDuration:"GTC",listingPolicies:{paymentPolicyId:String(body.paymentPolicyId),fulfillmentPolicyId:String(body.fulfillmentPolicyId),returnPolicyId:String(body.returnPolicyId),bestOfferTerms:{bestOfferEnabled:body.acceptOffers!==false}},pricingSummary:{price:{currency:"USD",value:price.toFixed(2)}}})});
     return Response.json({created:true,sku,offerId:offer.offerId,published:false,imageCount:imageUrls.length,imageUrls,aspectCount:Object.keys(aspects).length,categoryId:String(body.categoryId),condition:String(body.condition),packageReady:true,price:price.toFixed(2),createdAt:new Date().toISOString()});
   }catch(error){return Response.json({error:error instanceof Error?error.message:"Unable to create the eBay draft offer."},{status:400})}
 }
@@ -60,12 +60,12 @@ export async function PATCH(request:Request){
     await requireAllowedCondition(request,categoryId,condition);
     const offer=await ebayJson(request,`/sell/inventory/v1/offer/${encodeURIComponent(offerId)}`);
     if(offer.listing?.listingId)return Response.json({error:"This offer is already live. Use the revision workflow instead."},{status:409});
-    const price=Number(body.price),updated={...offer,categoryId,...(price>0?{pricingSummary:{...offer.pricingSummary,price:{value:price.toFixed(2),currency:"USD"}}}:{})};
+    const price=Number(body.price),updated={...offer,categoryId,listingPolicies:{...offer.listingPolicies,bestOfferTerms:{bestOfferEnabled:body.acceptOffers!==false}},...(price>0?{pricingSummary:{...offer.pricingSummary,price:{value:price.toFixed(2),currency:"USD"}}}:{})};
     const inventoryItem=await ebayJson(request,`/sell/inventory/v1/inventory_item/${encodeURIComponent(offer.sku)}`);
     const inventoryUpdate={...inventoryItem,condition,packageWeightAndSize:packageDetails}; delete inventoryUpdate.sku; delete inventoryUpdate.locale;
     await ebayJson(request,`/sell/inventory/v1/inventory_item/${encodeURIComponent(offer.sku)}`,{method:"PUT",body:JSON.stringify(inventoryUpdate)});
     for(const key of ["offerId","status","listing","warnings"] as const)delete updated[key];
     await ebayJson(request,`/sell/inventory/v1/offer/${encodeURIComponent(offerId)}`,{method:"PUT",body:JSON.stringify(updated)});
-    return Response.json({updated:true,offerId,categoryId,condition,packageReady:true,price:price>0?price.toFixed(2):offer.pricingSummary?.price?.value,published:false},{headers:{"cache-control":"no-store"}});
+    return Response.json({updated:true,offerId,categoryId,condition,packageReady:true,price:price>0?price.toFixed(2):offer.pricingSummary?.price?.value,acceptOffers:body.acceptOffers!==false,published:false},{headers:{"cache-control":"no-store"}});
   }catch(error){return Response.json({error:error instanceof Error?error.message:"Unable to update the unpublished offer category."},{status:400})}
 }
