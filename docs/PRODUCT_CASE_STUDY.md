@@ -101,6 +101,8 @@ Several behaviors were especially important:
 - **AI orchestration:** I used multiple agents for parallel work, independent checks, and cross-review, then retained responsibility for the product decision and acceptance standard.
 
 For résumé bullets, interview answers, and a concise client-facing explanation, see the [Portfolio Talk Track](PORTFOLIO_TALK_TRACK.md).
+
+For the inspectable proof behind these claims, see [Product Decisions, With Receipts](DECISION_EVIDENCE.md).
 ## Current status
 
 The private application supports photo grouping, evidence-aware listing generation, eBay Production connection, account policy selection, durable workspace recovery, category-aware preparation, unpublished offer creation, preflight validation, deliberately gated live publication, and remote reconciliation. The production build is protected by automated tests covering migrations, concurrency, retries, OAuth expiry, rate limiting, malformed model output, inaccessible images, manifest drift, and interface encoding.

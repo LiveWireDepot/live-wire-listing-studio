@@ -8,6 +8,8 @@ Live Wire Listing Studio groups related photographs, keeps thumbnails visible th
 
 **Portfolio talk track:** [How to present the project in a résumé, interview, or client conversation](docs/PORTFOLIO_TALK_TRACK.md)
 
+**Decision evidence:** [Inspect the workflow diagrams, code evidence, commit progression, and canary scorecard](docs/DECISION_EVIDENCE.md)
+
 ## Current status
 
 The private Production application now supports:
