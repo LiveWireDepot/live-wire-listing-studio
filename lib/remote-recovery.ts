@@ -1,0 +1,2 @@
+export type MutationRecovery<T>={status:"succeeded"|"recovered";result:T}|{status:"ambiguous";error:unknown};
+export async function mutateThenReconcile<T>(input:{mutate:()=>Promise<T>;reconcile:()=>Promise<T|null>}):Promise<MutationRecovery<T>>{try{return{status:"succeeded",result:await input.mutate()}}catch(error){try{const recovered=await input.reconcile();if(recovered!==null)return{status:"recovered",result:recovered}}catch{}return{status:"ambiguous",error}}}
