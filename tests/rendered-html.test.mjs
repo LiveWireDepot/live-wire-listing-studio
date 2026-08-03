@@ -93,14 +93,14 @@ test("locks live publishing to Production with a typed final gate",async()=>{
     readFile(new URL("../app/api/ebay/revise-offer/route.ts",import.meta.url),"utf8"),
   ]);
   assert.match(ebay,/row\.environment!==config\.environment/);
-  assert.match(page,/PRODUCTION · LIVE/);
+  assert.match(page,/PUBLISH THIS EXACT LISTING/);
   assert.match(page,/Review fees \+ publish live/);
-  assert.match(page,/PUBLISH LIVE ON EBAY/);
+  assert.match(page,/approveManifest/);
   assert.match(page,/Batch Command Center/);
   assert.match(page,/BATCH LIVE PUBLISH GATE/);
   assert.match(publish,/environment!=="production"/);
   assert.match(publish,/PUBLISH \$\{offerId\}/);
-  assert.match(publish,/get_listing_fees/);
+  assert.match(publish,/manifestId/);
   assert.match(publish,/\/publish/);
   assert.match(category,/get_category_suggestions/);
   assert.match(category,/requireLeafCategory/);
