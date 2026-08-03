@@ -85,6 +85,21 @@ Those discoveries produced a stronger system, not a collection of one-off patche
 - Directing iterative engineering work through observed failures and acceptance criteria
 - Building toward a measurable target: preparing 40–50 listings in a short supervised batch session without sacrificing listing quality
 
+## How I lead collaborative product work
+
+The way I worked on this project is part of the outcome. I gave my engineering collaborator meaningful autonomy while remaining accountable for product direction. I asked for expert pushback, invited UI/UX judgment, and then tested proposed solutions against the actual seller workflow instead of deferring to implementation details.
+
+Several behaviors were especially important:
+
+- **Operational specificity:** I turned tacit seller knowledge into clear rules about descriptions, condition, testing, photographs, shipping, pricing, offers, and revisions.
+- **Constructive challenge:** I questioned uniform prices, package assumptions, category behavior, hidden publish gates, and whether batch features actually reduced work.
+- **Customer empathy:** I treated expectation setting and reputation as product requirements, not optional copywriting polish.
+- **Systems thinking:** I recognized that category selection initiates a pull of allowed conditions and required specifics, followed by a push of completed data—not a standalone dropdown choice.
+- **Learning agility:** I worked through unfamiliar OAuth, policy, taxonomy, inventory, and Production constraints without losing sight of the business objective.
+- **Quality under ambition:** I pushed for dramatic throughput improvement while explicitly refusing to trade away professionalism, accuracy, or build quality.
+- **Candid iteration:** When the experience became confusing, I said so plainly and helped articulate a better model instead of accepting a technically correct workflow.
+
+For résumé bullets, interview answers, and a concise client-facing explanation, see the [Portfolio Talk Track](PORTFOLIO_TALK_TRACK.md).
 ## Current status
 
 The private application supports photo grouping, evidence-aware listing generation, eBay Production connection, account policy selection, durable workspace recovery, category-aware preparation, unpublished offer creation, preflight validation, deliberately gated live publication, and remote reconciliation. The production build is protected by automated tests covering migrations, concurrency, retries, OAuth expiry, rate limiting, malformed model output, inaccessible images, manifest drift, and interface encoding.

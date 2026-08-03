@@ -6,6 +6,8 @@ Live Wire Listing Studio groups related photographs, keeps thumbnails visible th
 
 **Portfolio case study:** [From Listing Chore to Seller Operating System](docs/PRODUCT_CASE_STUDY.md)
 
+**Portfolio talk track:** [How to present the project in a résumé, interview, or client conversation](docs/PORTFOLIO_TALK_TRACK.md)
+
 ## Current status
 
 The private Production application now supports:
