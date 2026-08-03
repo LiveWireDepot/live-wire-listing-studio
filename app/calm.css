@@ -1,0 +1,48 @@
+/* Calm, task-first production workflow */
+main[data-view="photos"]>.ebaystatus,
+main[data-view="photos"]>.sandboxready,
+main[data-view="photos"]>.sellingsettings,
+main[data-view="photos"]>.sandboxsetup,
+main[data-view="photos"]>.testbench{display:none}
+main[data-view="photos"]>.mast{padding-top:32px}
+
+main[data-view="listings"]>.stageintro{margin:22px auto 14px;padding:18px 24px;display:flex;align-items:center;gap:22px}
+main[data-view="listings"]>.stageintro p{margin:0;white-space:nowrap}
+main[data-view="listings"]>.stageintro h1{font-size:30px;white-space:nowrap}
+main[data-view="listings"]>.stageintro h1 br{display:none}
+main[data-view="listings"]>.stageintro span{margin:0 0 0 auto;max-width:430px;font-size:11px}
+main[data-view="listings"]>.batchcommand{position:static;box-shadow:none;margin-bottom:14px;padding:12px 18px}
+main[data-view="listings"]>.batchcommand h2{font-size:18px;margin:2px 0}
+main[data-view="listings"]>.batchcommand dl span{min-width:66px;padding:6px}
+main[data-view="listings"]>.batchcommand dt{font-size:17px}
+main[data-view="listings"]>.listingworkspace{padding:18px;gap:10px}
+main[data-view="listings"]>.listingworkspace>.sectiontitle{padding:0 0 14px}
+main[data-view="listings"]>.listingworkspace>.sectiontitle>span:first-child,
+main[data-view="listings"]>.listingworkspace>.sectiontitle p{display:none}
+main[data-view="listings"]>.listingworkspace>.sectiontitle h2{font-size:22px}
+
+.batchnext{margin-left:auto;min-width:260px;background:var(--orange);color:#17110d}
+.listingcard{border-radius:10px;overflow:hidden}
+.listinghead{padding:12px 14px}
+.listingcard h3{font-size:17px}
+.next-ebay-action{margin:0;border-width:0 0 0 4px;border-radius:0;padding:14px 16px}
+.next-ebay-action strong{font-size:18px}
+.next-ebay-action p{font-size:11px}
+.next-ebay-action small{display:none}
+.next-ebay-action button{min-width:210px;padding:12px 15px}
+.listingdetails{border-top:1px solid var(--line)}
+.listingdetails>summary{cursor:pointer;padding:12px 16px;background:var(--cream);font-weight:800;font-size:11px;color:var(--muted);list-style:none}
+.listingdetails>summary:before{content:"+";display:inline-grid;place-items:center;width:20px;height:20px;margin-right:8px;border:1px solid var(--line)}
+.listingdetails[open]>summary:before{content:"-"}
+.listingdetails>.listingtitle{display:grid;margin:14px}
+.listingdetails>.listingtitle input{min-width:0}
+.listingdetails>.ebaydraftv2{border-top:1px solid var(--line)}
+
+@media(max-width:850px){
+  main[data-view="listings"]>.stageintro{margin:14px 12px;display:block}
+  main[data-view="listings"]>.stageintro h1{white-space:normal}
+  main[data-view="listings"]>.stageintro span{margin-top:8px}
+  .batchnext{width:100%;min-width:0}
+  .next-ebay-action{grid-template-columns:1fr}
+  .next-ebay-action button{width:100%;min-width:0}
+}

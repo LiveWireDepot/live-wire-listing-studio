@@ -47,7 +47,8 @@ test("queues complete Sandbox drafts sequentially with persistent per-item outco
   const [page,css]=await Promise.all([readFile(pageUrl,"utf8"),readFile(cssUrl,"utf8")]);
   assert.match(page,/async function createAllDrafts/);
   assert.match(page,/await createEbayDraft\(item\.id,true\)/);
-  assert.match(page,/Create all ready \$\{ebay\?\.environment/);
+  assert.match(page,/Prepare entire batch for eBay/);
+  assert.match(page,/Create \$\{groups\.filter\(item=>!offers/);
   assert.match(page,/!offers\[item\.id\]&&draftReady/);
   assert.match(page,/draftErrors/);
   assert.match(page,/generationStatus/);
