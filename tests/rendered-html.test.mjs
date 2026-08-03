@@ -97,7 +97,8 @@ test("locks live publishing to Production with a typed final gate",async()=>{
   assert.match(publish,/\/publish/);
   assert.match(category,/get_category_suggestions/);
   assert.match(ebay,/requireLeafCategory/);
-  assert.match(publish,/requireLeafCategory/);
+  assert.match(publish,/runEbayPreflight/);
+  assert.match(publish,/preflight\.ready/);
   assert.match(page,/repairOfferCategory/);
   assert.match(ebay,/categoryConditions/);
   assert.match(page,/Condition/);

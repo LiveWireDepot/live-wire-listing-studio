@@ -1,4 +1,5 @@
-import {ebayConfig,ebayJson,requireLeafCategory,requireAllowedCondition} from "../../../../lib/ebay";
+import {ebayConfig,ebayJson} from "../../../../lib/ebay";
+import {runEbayPreflight} from "../../../../lib/ebay-preflight";
 export const runtime="edge";
 export async function POST(request:Request){
   try{
@@ -7,15 +8,11 @@ export async function POST(request:Request){
     const body=await request.json() as {offerId?:string;confirmation?:string;preview?:boolean};
     const offerId=String(body.offerId||"").trim();
     if(!offerId)return Response.json({error:"Missing offerId."},{status:400});
-    const offer=await ebayJson(request,`/sell/inventory/v1/offer/${encodeURIComponent(offerId)}`);
-    await requireLeafCategory(request,String(offer.categoryId||""));
-    const inventoryItem=await ebayJson(request,`/sell/inventory/v1/inventory_item/${encodeURIComponent(offer.sku)}`);
-    await requireAllowedCondition(request,String(offer.categoryId||""),String(inventoryItem.condition||""));
-    const packageDetails=inventoryItem.packageWeightAndSize,weight=Number(packageDetails?.weight?.value),dimensions=packageDetails?.dimensions;
-    if(!(weight>0&&Number(dimensions?.length)>0&&Number(dimensions?.width)>0&&Number(dimensions?.height)>0))throw new Error("Add valid package weight and dimensions before publishing.");
+    const preflight=await runEbayPreflight(request,offerId);
+    if(!preflight.ready)return Response.json({error:`Preflight found ${preflight.blockerCount} blocker${preflight.blockerCount===1?"":"s"}.`,preflight},{status:409,headers:{"cache-control":"no-store"}});
     if(body.preview){
       const fees=await ebayJson(request,"/sell/inventory/v1/offer/get_listing_fees",{method:"POST",body:JSON.stringify({offers:[{offerId}]})});
-      return Response.json({readyToPublish:true,environment:config.environment,offerId,offer,fees,requiredConfirmation:`PUBLISH ${offerId}`},{headers:{"cache-control":"no-store"}});
+      return Response.json({readyToPublish:true,environment:config.environment,offerId,preflight,fees,requiredConfirmation:`PUBLISH ${offerId}`},{headers:{"cache-control":"no-store"}});
     }
     if(body.confirmation!==`PUBLISH ${offerId}`)return Response.json({error:`Type PUBLISH ${offerId} to confirm this live listing.`},{status:400});
     const published=await ebayJson(request,`/sell/inventory/v1/offer/${encodeURIComponent(offerId)}/publish`,{method:"POST"});
