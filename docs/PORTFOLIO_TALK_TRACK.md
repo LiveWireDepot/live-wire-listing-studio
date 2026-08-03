@@ -21,6 +21,7 @@ I designed Live Wire Listing Studio to turn a mixed batch of antique and vintage
 - Identified a major workflow usability issue during Production testing and redesigned five disconnected marketplace stages into a single exception-driven “Next eBay action” orchestration.
 - Established safety requirements for immutable publication manifests, explicit price approval, category and condition validation, duplicate-operation prevention, timeout reconciliation, and remote-state recovery.
 - Led iterative product testing across eBay Sandbox and Production, turning real API failures and seller pain points into reusable architecture instead of isolated patches.
+- Orchestrated multiple AI agents for parallel investigation, independent validation, and cross-review while retaining human ownership of scope, tradeoffs, and final acceptance.
 - Defined a measurable throughput goal of 40–50 prepared listings in a short supervised batch session while preserving human approval at consequential decisions; production benchmarking is the next milestone.
 
 ## What was distinctive about my collaboration style
@@ -41,6 +42,9 @@ I questioned uniform pricing, automatic package estimates, Media Mail assumption
 
 I consistently pushed for high throughput while refusing to sacrifice professionalism, build quality, accurate condition descriptions, or final human control. The goal was not automation for its own sake; it was trustworthy leverage.
 
+### I orchestrated multiple AI agents as a review system
+
+I used multiple agents for bounded parallel work, independent checks, and review of one another's conclusions. I treated their output as evidence to compare—not authority to accept blindly—and kept final prioritization and product decisions with me. This reduced blind spots while allowing research, implementation, testing, and critique to move faster.
 ### I made customer trust a design requirement
 
 I specified that descriptions should acknowledge the limits of photographed inspection, disclose visible flaws, encourage buyers to review all images, and never turn uncertain evidence into confident claims. That is product thinking grounded in reputation and long-term customer value.

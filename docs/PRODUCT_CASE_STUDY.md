@@ -98,6 +98,7 @@ Several behaviors were especially important:
 - **Learning agility:** I worked through unfamiliar OAuth, policy, taxonomy, inventory, and Production constraints without losing sight of the business objective.
 - **Quality under ambition:** I pushed for dramatic throughput improvement while explicitly refusing to trade away professionalism, accuracy, or build quality.
 - **Candid iteration:** When the experience became confusing, I said so plainly and helped articulate a better model instead of accepting a technically correct workflow.
+- **AI orchestration:** I used multiple agents for parallel work, independent checks, and cross-review, then retained responsibility for the product decision and acceptance standard.
 
 For résumé bullets, interview answers, and a concise client-facing explanation, see the [Portfolio Talk Track](PORTFOLIO_TALK_TRACK.md).
 ## Current status
