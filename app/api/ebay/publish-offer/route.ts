@@ -11,6 +11,8 @@ export async function POST(request:Request){
     await requireLeafCategory(request,String(offer.categoryId||""));
     const inventoryItem=await ebayJson(request,`/sell/inventory/v1/inventory_item/${encodeURIComponent(offer.sku)}`);
     await requireAllowedCondition(request,String(offer.categoryId||""),String(inventoryItem.condition||""));
+    const packageDetails=inventoryItem.packageWeightAndSize,weight=Number(packageDetails?.weight?.value),dimensions=packageDetails?.dimensions;
+    if(!(weight>0&&Number(dimensions?.length)>0&&Number(dimensions?.width)>0&&Number(dimensions?.height)>0))throw new Error("Add valid package weight and dimensions before publishing.");
     if(body.preview){
       const fees=await ebayJson(request,"/sell/inventory/v1/offer/get_listing_fees",{method:"POST",body:JSON.stringify({offers:[{offerId}]})});
       return Response.json({readyToPublish:true,environment:config.environment,offerId,offer,fees,requiredConfirmation:`PUBLISH ${offerId}`},{headers:{"cache-control":"no-store"}});

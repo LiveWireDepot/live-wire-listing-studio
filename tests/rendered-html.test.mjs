@@ -77,6 +77,7 @@ test("uploads approved photos before creating an unpublished offer",async()=>{
   assert.match(route,/published:false/);
   assert.match(route,/price<=0/);
   assert.match(route,/const condition=String\(body\.condition/);
+  assert.match(route,/packageWeightAndSize/);
 });
 test("locks live publishing to Production with a typed final gate",async()=>{
   const [page,publish,ebay,category,revise]=await Promise.all([
