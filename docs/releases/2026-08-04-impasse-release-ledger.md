@@ -80,3 +80,10 @@ No eBay mutation was attempted. Production remains on its prior operationally de
 - Escalate to the Sites deployment owner with this ledger and the two paired cases.
 - After the deployment transformation is corrected, save a new version from a newly frozen exact commit and resume at the deployment gate.
 - Browser-based Release Steward qualification, fresh-batch testing, rollback/schema verification, signed-in Production QA, and the canary remain mandatory after deployment succeeds.
+
+## Support escalation
+
+- Submitted through authenticated OpenAI Help Center support with the project, saved version, deployment, environment revision, exact validator error, paired explicit-flag/flag-free evidence, and this ledger.
+- Support status: escalated to a support specialist.
+- Support expectation: a response in the coming days; replies will also be sent by email.
+- Deployment retries remain stopped while the specialist case is pending.
