@@ -29,10 +29,8 @@ export function normalizeWranglerConfig(configPath) {
 
 function build() {
   const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-  const executable = path.join(root, "node_modules", ".bin", process.platform === "win32" ? "vinext.cmd" : "vinext");
-  const command = process.platform === "win32" ? (process.env.ComSpec ?? "cmd.exe") : executable;
-  const args = process.platform === "win32" ? ["/d", "/s", "/c", `"${executable}" build`] : ["build"];
-  const result = spawnSync(command, args, {
+  const cli = path.join(root, "node_modules", "vinext", "dist", "cli.js");
+  const result = spawnSync(process.execPath, [cli, "build"], {
     cwd: root,
     env: { ...process.env, WRANGLER_LOG_PATH: ".wrangler/wrangler.log" },
     stdio: "inherit",
