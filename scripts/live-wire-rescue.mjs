@@ -1,0 +1,22 @@
+#!/usr/bin/env node
+import {mkdir,readdir,writeFile} from "node:fs/promises";
+import {join,resolve} from "node:path";
+import {buildManifest,classifyRemote,compareManifest,validatePrepared} from "../lib/rescue-core.mjs";
+import {atomicJson,event,readJson} from "../lib/rescue-files.mjs";
+
+const [command,...argv]=process.argv.slice(2),options=Object.fromEntries(argv.map(x=>x.split("=")).filter(x=>x.length===2).map(([k,...v])=>[k.replace(/^--/,""),v.join("=")])),runDir=resolve(options.run||"rescue-data/current"),sourcePath=join(runDir,"source","items.json");
+const usage=()=>console.log("Usage: node scripts/live-wire-rescue.mjs <audit|prepare|verify|publish-canary|resume> --run=<directory> [--remote=<json>] [--approval=<hash>] [--execute=true]");
+if(!command){usage();process.exitCode=2}else await main();
+async function loadItems(){const data=await readJson(sourcePath);return Array.isArray(data)?data:data.items||[]}
+async function saveState(item,state,detail={}){await atomicJson(join(runDir,"state",`${item.sku}.json`),{sku:item.sku,state,...detail});await event(runDir,{command,sku:item.sku,state,...detail})}
+async function writeReport(name,lines){await mkdir(join(runDir,"reports"),{recursive:true});await writeFile(join(runDir,"reports",name),`${lines.join("\n")}\n`)}
+async function manifestFiles(){const manifestDir=join(runDir,"manifests");try{return {manifestDir,files:(await readdir(manifestDir)).filter(x=>x.endsWith(".json"))}}catch(error){if(error?.code==="ENOENT")return {manifestDir,files:[]};throw error}}
+async function main(){
+ if(!["audit","prepare","verify","publish-canary","resume"].includes(command)){usage();process.exitCode=2;return}
+ const items=await loadItems(),remote=options.remote?await readJson(resolve(options.remote)):{inventoryOffers:[],sellerListings:[]};
+ if(command==="audit"){const rows=[];for(const item of items){const result=classifyRemote({sku:item.sku,...remote}),state=result.classification==="DUPLICATE_RISK"?"BLOCKED":result.classification==="ALREADY_LIVE"?"LIVE_RECONCILED":"READY";await saveState(item,state,{audit:result.classification});rows.push(`${item.sku}\t${result.classification}`)}await writeReport("audit.tsv",["SKU\tCLASSIFICATION",...rows]);console.log(`Audited ${items.length} items. No remote changes.`);return}
+ if(command==="prepare"){const needs=[];for(const item of items){const validation=validatePrepared(item);if(!validation.ready){await saveState(item,"NEEDS_INPUT",{issues:validation.issues});needs.push(`${item.sku}: ${validation.issues.join(" ")}`);continue}const built=buildManifest(item);await atomicJson(join(runDir,"manifests",`${item.sku}.json`),built);await saveState(item,"READY",{manifestHash:built.manifestHash})}await writeReport("needs-input.md",needs.length?["# Needs input","",...needs]:["# Needs input","","None."]);console.log(`Prepared ${items.length-needs.length}; ${needs.length} need input. No offers created.`);return}
+ if(command==="verify"){if(options.execute==="true")throw new Error("Remote execution requires the production adapter; dry-run verification is the only local default.");const {manifestDir,files}=await manifestFiles(),rows=[];for(const file of files){const {manifest,manifestHash}=await readJson(join(manifestDir,file)),found=(remote.objects||[]).find(x=>x.sku===manifest.sku);if(!found){rows.push(`${manifest.sku}\tDRY_RUN\t${manifestHash}`);continue}const comparison=compareManifest(manifest,found);await saveState(manifest,comparison.pass?"VERIFIED":"BLOCKED",{manifestHash,diffs:comparison.diffs});rows.push(`${manifest.sku}\t${comparison.pass?"VERIFIED":"BLOCKED"}\t${comparison.diffs.join(",")}`)}await writeReport("verification.tsv",["SKU\tSTATE\tDETAIL",...rows]);console.log(files.length?`Verified ${files.length} manifests; no publication performed.`:"Verified 0 manifests; preparation must succeed first. No publication performed.");return}
+ if(command==="publish-canary"){if(!options.approval)throw new Error("Provide the approved canary manifest hash.");if(options.execute!=="true")throw new Error("Canary publication is locked. Pass --execute=true only after explicit approval.");throw new Error("Production publishing adapter is intentionally unavailable until audit and dry-run verification pass.")}
+ if(command==="resume"){if(options.execute!=="true")throw new Error("Resume is locked. Pass --execute=true only after a reconciled canary.");throw new Error("Production resume adapter is intentionally unavailable until the canary is LIVE_RECONCILED.")}
+}

@@ -1,0 +1,29 @@
+.settingshero .primarylink{
+  position:relative;
+  z-index:2;
+  min-width:230px;
+  min-height:52px;
+  align-items:center;
+  justify-content:center;
+  border:2px solid #fff4e8;
+  background:#f28a42;
+  color:#17110d;
+  box-shadow:0 0 0 4px #f28a4238,0 12px 28px #0008;
+  font-size:15px;
+  letter-spacing:.01em;
+}
+.settingshero .primarylink:hover,.settingshero .primarylink:focus-visible{
+  background:#fff4e8;
+  color:#17110d;
+  outline:3px solid #f28a42;
+  outline-offset:3px;
+}
+.settingshero .primarylink.production:before,.settingshero .primarylink.sandbox:before{
+  content:"";
+  width:9px;
+  height:9px;
+  margin-right:9px;
+  border-radius:50%;
+  background:#17110d;
+}
+@media(max-width:850px){.settingshero .primarylink{width:100%;min-width:0}}

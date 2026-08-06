@@ -1,0 +1,36 @@
+{
+  "items": [
+    {
+      "itemId": "fixture-1",
+      "sku": "LW-FIXTURE-1",
+      "title": "1967 RCA Victor VJT Series Service Data Manual No. 41",
+      "description": "Fixture description referencing the photographs.",
+      "categoryId": "934",
+      "leafCategory": true,
+      "condition": "USED_GOOD",
+      "photos": [{"id":"photo-1","sha256":"abc123","ordinal":1}],
+      "price": 14.99,
+      "priceApproved": true,
+      "quantity": 1,
+      "bestOfferEnabled": true,
+      "packageDetails": {"weight":{"value":8,"unit":"OUNCE"},"dimensions":{"length":11,"width":9,"height":1,"unit":"INCH"}},
+      "policies": {"paymentPolicyId":"PAY","fulfillmentPolicyId":"SHIP","returnPolicyId":"RETURN"},
+      "merchantLocationKey": "LIVEWIRE"
+    },
+    {
+      "itemId": "fixture-2",
+      "sku": "LW-FIXTURE-2",
+      "title": "Incomplete Fixture",
+      "description": "Fixture description.",
+      "categoryId": "",
+      "leafCategory": false,
+      "condition": "USED_GOOD",
+      "photos": [{"id":"photo-2","sha256":"def456","ordinal":1}],
+      "price": 0,
+      "priceApproved": false,
+      "packageDetails": {},
+      "policies": {},
+      "merchantLocationKey": ""
+    }
+  ]
+}
