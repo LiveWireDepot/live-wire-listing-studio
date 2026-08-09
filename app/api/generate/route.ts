@@ -1,5 +1,7 @@
 import {parseGeneratedListing} from "../../../lib/generated-listing";
+
 export const runtime = "edge";
+
 const GUIDE = `You write finished eBay listings for Mark Beebe's store, Live Wire Antiques. Treat every rule below as authoritative.
 
 Inspect every supplied image and user fact. Never invent maker, model, date, material, function, completeness, test result, authenticity, rarity, restoration, provenance, or an eBay category ID. User facts outrank visible evidence; visible labels outrank careful inference. Return a nonempty, plain-language category describing the supported item type, such as Vintage radio, Original radio service manual, Book, Map, or Ephemera; this is not an eBay numeric category ID. Use Unidentified collectible only when even the broad item type cannot be supported. Use an empty string for maker or model when that evidence is insufficient. Label uncertainty naturally as likely, appears to be, or possibly.
@@ -19,17 +21,33 @@ For electronics, recommend qualified inspection before regular use when appropri
 Extract useful eBay item specifics as concise name/value pairs. Prefer standard buyer-facing names such as Brand, Model, Type, Year Manufactured, Material, Country/Region of Manufacture, MPN, Features, Subject, Publication Year, Format, or Original/Reproduction when relevant. Do not include condition, price, shipping, or unsupported guesses as specifics. Mark a value observed only when visible in the images, user when explicitly supplied by the user, and inferred otherwise. Set requiresConfirmation true whenever the value is not directly supported, or when the fact concerns functionality, completeness, provenance, authenticity, measurements, or hidden condition. Include a short plain-language question only when confirmation is required. Use confidence from 0 to 100.
 
 Before responding, verify the title limit, identical opening title, divider, section order, bullet characters, exact test status, flaws, expectation-setting language, substantial opening and closing, special manual note, and evidence labels for every item specific.`;
+
 const schema={type:"object",additionalProperties:false,properties:{title:{type:"string"},description:{type:"string"},category:{type:"string",minLength:1,description:"A supported plain-language item type, never a numeric eBay category ID."},maker:{type:"string",description:"Observed maker or empty when unsupported."},model:{type:"string",description:"Observed model or document title/number, or empty when unsupported."},specifics:{type:"array",maxItems:16,items:{type:"object",additionalProperties:false,properties:{name:{type:"string"},value:{type:"string"},source:{type:"string",enum:["observed","user","inferred"]},confidence:{type:"integer",minimum:0,maximum:100},requiresConfirmation:{type:"boolean"},question:{type:"string"}},required:["name","value","source","confidence","requiresConfirmation","question"]}}},required:["title","description","category","maker","model","specifics"]};
+
+type GenerationMode = "economy" | "enhanced";
+
+function costException(imageCount:number) {
+  return {
+    code:"ENHANCED_REVIEW_APPROVAL_REQUIRED",
+    message:`This item has ${imageCount} photos. Economy review is designed for up to 4 photos; use enhanced review only if you want the fuller, higher-cost inspection.`,
+  };
+}
+
 export async function POST(request: Request) {
   try {
     const key = (globalThis as any).process?.env?.OPENAI_API_KEY;
     if (!key) return Response.json({error:"Listing generation is not configured."},{status:503});
-    const body = await request.json() as {name?:string;facts?:Record<string,string>;images?:string[]};
+    const body = await request.json() as {name?:string;facts?:Record<string,string>;images?:string[];mode?:GenerationMode};
     if (!body.images?.length) return Response.json({error:"This item has no assigned photos."},{status:400});
-    const facts=Object.entries(body.facts??{}).filter(([,v])=>v?.trim()).map(([k,v])=>`${k}: ${v}`).join("\n")||"No additional user-supplied facts.";
+    const mode:GenerationMode=body.mode==="enhanced"?"enhanced":"economy";
+    if(mode==="economy"&&body.images.length>4)return Response.json({costException:costException(body.images.length)},{status:409});
+    const facts=Object.entries(body.facts??{}).filter(([,v])=>v?.trim()).map(([k,v])=>`${k}: ${v}`).join("\n").slice(0,3500)||"No additional user-supplied facts.";
     const content:any[]=[{type:"input_text",text:`${GUIDE}\n\nITEM GROUP: ${body.name||"Unnamed item"}\nUSER FACTS:\n${facts}\n\nAnalyze every image below as evidence for this single item and produce the finished structured listing.`}];
-    for(const image_url of body.images.slice(0,12))content.push({type:"input_image",image_url,detail:"high"});
-    const result=await fetch("https://api.openai.com/v1/responses",{method:"POST",headers:{Authorization:`Bearer ${key}`,"Content-Type":"application/json"},body:JSON.stringify({model:"gpt-5.6-sol",input:[{role:"user",content}],reasoning:{effort:"medium"},text:{verbosity:"medium",format:{type:"json_schema",name:"ebay_listing",strict:true,schema}}})});
+    const imageDetail=mode==="enhanced"?"high":"low";
+    for(const image_url of body.images.slice(0,12))content.push({type:"input_image",image_url,detail:imageDetail});
+    const model=mode==="enhanced"?"gpt-5.6-terra":"gpt-5.6-luna";
+    const effort=mode==="enhanced"?"medium":"low";
+    const result=await fetch("https://api.openai.com/v1/responses",{method:"POST",headers:{Authorization:`Bearer ${key}`,"Content-Type":"application/json"},body:JSON.stringify({model,input:[{role:"user",content}],reasoning:{effort},text:{verbosity:"medium",format:{type:"json_schema",name:"ebay_listing",strict:true,schema}}})});
     const data:any=await result.json();
     if(!result.ok)return Response.json({error:data?.error?.message||"OpenAI could not generate this listing."},{status:result.status});
     const output=(data.output??[]).flatMap((item:any)=>item.content??[]).find((item:any)=>item.type==="output_text")?.text;
@@ -40,6 +58,7 @@ export async function POST(request: Request) {
     const title=clean(listing.title);let description=clean(listing.description).replace(/^(?:BLOCK\s*\d+[^\n]*|TITLE(?:\s+ONLY)?[^\n]*)\n+/i,"");
     if(!description.startsWith(title))description=`${title}\n\n${description}`;
     const category=clean(listing.category)||(()=>{const evidence=`${title} ${description}`.toLowerCase();if(/service (?:data|manual)|service literature/.test(evidence))return "Original radio service manual";if(/owner.?s manual|instruction manual|manual/.test(evidence))return "Vintage manual";if(/radio|receiver|phonograph/.test(evidence))return "Vintage radio or phonograph";if(/book/.test(evidence))return "Book";if(/map/.test(evidence))return "Map";return "Unidentified collectible"})();
-    const seen=new Set<string>();const specifics=(Array.isArray(listing.specifics)?listing.specifics:[]).map((item:any)=>({name:clean(item.name).slice(0,40),value:clean(item.value).slice(0,50),source:item.source==="observed"?"observed":item.source==="user"?"user":"inferred",confidence:Math.max(0,Math.min(100,Number(item.confidence)||0)),requiresConfirmation:Boolean(item.requiresConfirmation),question:clean(item.question).slice(0,140)})).filter((item:any)=>item.name&&item.value&&!seen.has(item.name.toLowerCase())&&seen.add(item.name.toLowerCase()));return Response.json({title,description,facts:{category,maker:clean(listing.maker),model:clean(listing.model)},specifics});
+    const seen=new Set<string>();const specifics=(Array.isArray(listing.specifics)?listing.specifics:[]).map((item:any)=>({name:clean(item.name).slice(0,40),value:clean(item.value).slice(0,50),source:item.source==="observed"?"observed":item.source==="user"?"user":"inferred",confidence:Math.max(0,Math.min(100,Number(item.confidence)||0)),requiresConfirmation:Boolean(item.requiresConfirmation),question:clean(item.question).slice(0,140)})).filter((item:any)=>item.name&&item.value&&!seen.has(item.name.toLowerCase())&&seen.add(item.name.toLowerCase()));
+    return Response.json({title,description,facts:{category,maker:clean(listing.maker),model:clean(listing.model)},specifics,generation:{mode}});
   }catch(error){return Response.json({error:error instanceof Error?error.message:"Unexpected listing error."},{status:500})}
 }
