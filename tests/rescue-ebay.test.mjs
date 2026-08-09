@@ -1,0 +1,8 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import {collectSellerListings,parseSellerListings,planImageUploads,tradingRequest} from "../lib/rescue-ebay.mjs";
+const page=(number,total,item)=>`<GetMyeBaySellingResponse><Ack>Success</Ack><ActiveList><ItemArray>${item?`<Item><ItemID>${item}</ItemID><SKU>LW-${item}</SKU><Title>Manual &amp; Guide</Title></Item>`:""}</ItemArray><PaginationResult><TotalNumberOfPages>${total}</TotalNumberOfPages></PaginationResult></ActiveList><ScheduledList><ItemArray></ItemArray></ScheduledList></GetMyeBaySellingResponse>`;
+test("seller listing parser includes active inventory and decodes fields",()=>assert.deepEqual(parseSellerListings(page(1,1,"1")).items,[{itemId:"1",sku:"LW-1",customLabel:"LW-1",title:"Manual & Guide",status:"ACTIVE"}]));
+test("seller listing audit follows pagination",async()=>{const seen=[];const items=await collectSellerListings({requestPage:async n=>(seen.push(n),page(n,2,String(n)))});assert.deepEqual(seen,[1,2]);assert.deepEqual(items.map(x=>x.itemId),["1","2"])});
+test("image upload plan reuses EPS URL by digest and preserves order",()=>{const result=planImageUploads([{sha256:"b",ordinal:2},{sha256:"a",ordinal:1}],{a:{epsUrl:"https://i.ebayimg.com/a.jpg"}});assert.deepEqual(result.map(x=>[x.sha256,x.action]),[["a","REUSE"],["b","UPLOAD"]])});
+test("Trading request keeps access token out of XML body",()=>{const request=tradingRequest({token:"secret-token",page:3});assert.equal(request.headers["X-EBAY-API-IAF-TOKEN"],"secret-token");assert.doesNotMatch(request.body,/secret-token/);assert.match(request.body,/<PageNumber>3<\/PageNumber>/)});

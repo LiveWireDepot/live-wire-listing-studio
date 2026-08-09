@@ -1,3 +1,4 @@
+import {env} from "cloudflare:workers";
 import {getD1} from "../db";
 
 export const EBAY_SCOPES=[
@@ -7,7 +8,7 @@ export const EBAY_SCOPES=[
 ];
 
 export function ebayConfig(){
-  const e=(globalThis as any).process?.env??{};
+  const e=env as Record<string,string|undefined>;
   const environment=e.EBAY_ENVIRONMENT||"sandbox",clientId=e.EBAY_CLIENT_ID,clientSecret=e.EBAY_CLIENT_SECRET,runame=e.EBAY_RUNAME,marketplaceId=e.EBAY_MARKETPLACE_ID||"EBAY_US";
   if(!clientId||!clientSecret||!runame)throw new Error(`eBay ${environment==="production"?"Production":"Sandbox"} settings are incomplete.`);
   const apiBase=environment==="production"?"https://api.ebay.com":"https://api.sandbox.ebay.com";

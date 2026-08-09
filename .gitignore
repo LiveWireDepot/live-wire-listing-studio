@@ -40,5 +40,9 @@ next-env.d.ts
 /.wrangler/
 /outputs/
 /work/
+/rescue-data/
+/.codex-pr-body.md
+/.site-package-*/
+/.tmp-*.tgz
 
 /.npm-cache/
