@@ -1,6 +1,6 @@
 # Product Decisions, With Receipts
 
-This page is the evidence layer for the Live Wire Listing Studio case study. It connects each product claim to something a reviewer can inspect.
+This page is the evidence layer for the Live Wire Listing Studio case study. It connects each product claim to something a reviewer can inspect. For a redacted account of observed Production outcomes, see [Production Validation](PRODUCTION_VALIDATION.md); for intelligence routing, see [Cost Control v1](COST_CONTROL_V1.md).
 
 ## The workflow changed because of observed use
 
@@ -31,8 +31,8 @@ flowchart TB
 | Marketplace writes are treated as durable operations | Draft creation reconciles by SKU and does not blindly retry ambiguous mutations | `app/api/ebay/draft-offer/route.ts`, `tests/remote-recovery.test.mjs` |
 | Final approval applies to an exact listing | Price, photographs, policies, offer terms, and fees are frozen in an immutable manifest and checked again before publish | `lib/publication-manifest.ts`, `app/api/ebay/publish-offer/route.ts`, `tests/publication-manifest.test.mjs` |
 | Failure testing shaped the architecture | Tests cover OAuth expiry, rate limiting, local timeout after remote success, concurrent sessions, migrations, malformed model output, inaccessible images, and encoding damage | `tests/` |
-| The system moved beyond a mockup | The application connects to eBay Production, creates real unpublished offers, preflights them, and has completed a deliberately gated live publication | Commit history and private Production demonstration |
-| Claims are kept honest | The throughput goal is labeled as a target until a timed canary measures it | `README.md`, `docs/PRODUCT_CASE_STUDY.md` |
+| The system moved beyond a mockup | Three final private reconciliation reports record 148 aggregate `LIVE_RECONCILED` results, with raw reports kept out of the public repository | `docs/PRODUCTION_VALIDATION.md` |
+| Claims are kept honest | Commercial productization and measured unit economics are labeled as future work rather than implied as complete | `README.md`, `docs/COST_CONTROL_V1.md`, `docs/ARCHITECTURE.md` |
 
 ## Product evolution visible in the commit history
 

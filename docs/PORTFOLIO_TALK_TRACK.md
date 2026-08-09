@@ -1,73 +1,37 @@
-# Live Wire Listing Studio — Portfolio Talk Track
+# Live Wire Listing Studio: Portfolio Talk Track
 
 ## 30-second version
 
-I designed Live Wire Listing Studio to turn a mixed batch of antique and vintage photographs into accurate, category-ready eBay listings. I brought the domain expertise, product direction, testing strategy, and human-in-the-loop rules, and I worked with OpenAI Codex as my engineering collaborator. The result is a private Production application that groups photographs, generates evidence-aware listing content, pulls category requirements, prepares unpublished offers, validates them against eBay, and requires explicit approval before publication.
-
-## What I owned
-
-- Product vision and prioritization
-- Seller workflow and domain rules
-- Human-in-the-loop and trust boundaries
-- Listing-content standards and expectation-setting language
-- Production acceptance testing
-- Failure analysis and workflow redesign
-- Portfolio narrative and roadmap
+I designed Live Wire Listing Studio to turn mixed batches of antique and vintage photographs into evidence-aware, category-ready eBay listings. I supplied the resale-domain model, product direction, testing strategy, human-review rules, and Production acceptance criteria; I worked with OpenAI Codex as an engineering collaborator. The result is a private Production workflow that groups photos, generates structured listing content, pulls category requirements, prepares unpublished offers, validates them remotely, and requires explicit approval before publication.
 
 ## Resume-ready bullets
 
-- Designed and directed development of an evidence-first eBay listing application integrating photo analysis, structured content generation, category-specific requirements, OAuth, seller policies, unpublished offers, preflight validation, and deliberately gated Production publishing.
-- Converted hands-on resale expertise into product rules that distinguish observed evidence, seller-confirmed facts, and inference—reducing the risk of unsupported condition, identity, testing, and provenance claims.
-- Identified a major workflow usability issue during Production testing and redesigned five disconnected marketplace stages into a single exception-driven “Next eBay action” orchestration.
-- Established safety requirements for immutable publication manifests, explicit price approval, category and condition validation, duplicate-operation prevention, timeout reconciliation, and remote-state recovery.
-- Led iterative product testing across eBay Sandbox and Production, turning real API failures and seller pain points into reusable architecture instead of isolated patches.
-- Orchestrated multiple AI agents for parallel investigation, independent validation, and cross-review while retaining human ownership of scope, tradeoffs, and final acceptance.
-- Defined a measurable throughput goal of 40–50 prepared listings in a short supervised batch session while preserving human approval at consequential decisions; production benchmarking is the next milestone.
+- Designed and directed an evidence-first eBay listing workflow integrating photo grouping, structured content generation, category-specific requirements, OAuth, seller policies, unpublished offers, preflight validation, immutable approval manifests, and Production reconciliation.
+- Converted hands-on resale expertise into product rules that distinguish observed evidence, seller-confirmed facts, and inference, reducing unsupported claims about condition, identity, testing, completeness, or provenance.
+- Reframed a confusing multi-step marketplace interface as a single exception-driven next-action workflow after Production testing revealed that technical correctness alone did not create operational clarity.
+- Established safeguards for exact price approval, category and condition validation, duplicate-operation prevention, timeout recovery, and remote-state reconciliation.
+- Designed a cost-aware AI routing strategy: deterministic local/API work first, Luna for routine generation, Terra for approved evidence exceptions, and Sol only for engineering or high-risk edge cases.
+- Used multiple AI agents for bounded parallel research and review while retaining ownership of product decisions, scope, and live-publication acceptance.
 
-## What was distinctive about my collaboration style
+## What was distinctive about the work
 
 ### I supplied the missing domain model
 
-I did not ask for a generic “AI eBay lister.” I explained how an experienced seller evaluates photographs, condition, completeness, shipping, pricing, offers, and customer expectations. That domain model shaped both the content contract and the system architecture.
+I did not ask for a generic AI lister. I explained how an experienced seller evaluates condition, completeness, photographs, shipping, pricing, offers, and customer expectations. Those details shaped both the content rules and the technical workflow.
 
-### I tested the experience, not merely the feature list
+### I tested the experience, not just the feature list
 
-When buttons technically existed but the path to publication was unclear, I did not accept “working as designed.” I called out that the workflow felt disjointed and articulated a better push-pull model: establish the category, retrieve its requirements, fill supported fields, request exceptions, and push back a complete offer.
+When controls existed but the path to publication was confusing, I did not accept "working as designed." I identified the mismatch, articulated the category requirements pull-push loop, and directed the redesign around the seller's actual job.
 
-### I challenged assumptions early
+### I treated AI cost as a product decision
 
-I questioned uniform pricing, automatic package estimates, Media Mail assumptions, FedEx tradeoffs, Best Offer behavior, category validity, item condition, revision support, and whether batch actions were truly batchable. Each challenge prevented the product from quietly encoding a poor operational assumption.
+The project encountered an intelligence-budget crunch. Rather than applying the strongest model everywhere, I helped define where cheap, local, and deterministic processing was sufficient; where low-cost inference was appropriate; and where escalation was worth the cost. The result is a measured cost-control design, not an assumption that more AI is always better.
 
-### I balanced ambition with responsibility
+### I preserved human accountability
 
-I consistently pushed for high throughput while refusing to sacrifice professionalism, build quality, accurate condition descriptions, or final human control. The goal was not automation for its own sake; it was trustworthy leverage.
-
-### I orchestrated multiple AI agents as a review system
-
-I used multiple agents for bounded parallel work, independent checks, and review of one another's conclusions. I treated their output as evidence to compare—not authority to accept blindly—and kept final prioritization and product decisions with me. This reduced blind spots while allowing research, implementation, testing, and critique to move faster.
-### I made customer trust a design requirement
-
-I specified that descriptions should acknowledge the limits of photographed inspection, disclose visible flaws, encourage buyers to review all images, and never turn uncertain evidence into confident claims. That is product thinking grounded in reputation and long-term customer value.
-
-### I collaborated without pretending to know everything
-
-I was candid about where I wanted engineering and UI/UX guidance, gave my collaborator room to propose better solutions, and still remained decisive about the real-world outcome. That combination—curiosity, trust, direct feedback, and ownership—kept the work moving.
-
-## Interview answer: “Tell me about a product decision you changed”
-
-During Production testing, the application had all of the required safety stages, but each stage exposed a different button and later controls appeared only after earlier remote objects existed. It was technically correct and operationally confusing. I recognized that the interface was reflecting the API rather than the seller’s job.
-
-I reframed the workflow as one orchestration: classify the item, retrieve category requirements, fill evidence-supported fields, surface only exceptions, create an unpublished offer, validate it, and request final approval. We preserved the safety gates but introduced one persistent next-action panel. That decision made the workflow easier to understand without weakening marketplace protections.
+Automation speeds the repetitive parts. It does not silently decide a questionable condition, price, quantity, shipping exception, or live publication. I kept final accountability with the seller and required remote verification after consequential marketplace actions.
 
 ## Client-facing version
 
-I am good at turning an experienced operator’s unwritten judgment into a practical software workflow. I can identify which decisions should be automated, which require human review, and where a technically functional system still creates unnecessary work. I work well with AI-assisted engineering because I provide strong domain context, test real outcomes, challenge weak assumptions, and keep the project focused on measurable operational value.
+I turn an experienced operator's unwritten judgment into a practical workflow. I identify what can be automated, what must remain reviewable, where a technically working system still creates friction, and how to introduce AI without hiding cost, evidence, or accountability.
 
-## Evidence to show
-
-- The [product case study](PRODUCT_CASE_STUDY.md)
-- The Mermaid workflow showing the category requirement push-pull loop
-- Production screenshots demonstrating photo grouping and the Next eBay action panel
-- The automated test suite and migration history
-- Commit history showing the progression from Sandbox prototype to durable Production workflow
-- A future timed multi-item canary report with throughput, exception rate, and accuracy results

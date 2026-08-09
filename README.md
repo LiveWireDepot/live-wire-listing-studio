@@ -1,116 +1,87 @@
 # Live Wire Listing Studio
 
-An evidence-first production workflow for turning mixed batches of antique and vintage-item photographs into prepared, reviewable, and deliberately published eBay listings.
+An evidence-first workflow for turning mixed batches of antique and vintage-item photographs into reviewable, category-ready eBay listings.
 
-Live Wire Listing Studio groups related photographs, keeps thumbnails visible throughout review, captures seller-confirmed facts before writing prose, generates structured listing copy, prepares category-specific marketplace data, creates unpublished Production offers, validates them against eBay, and requires final human approval before live publication.
+Live Wire was designed around a practical seller problem: a listing is not just prose. It requires correct photo grouping, supported facts, marketplace-specific fields, shipping and policy decisions, and a final publication decision. The Studio automates repeatable work, preserves evidence, and surfaces only the decisions that need a person.
 
-**Portfolio case study:** [From Listing Chore to Seller Operating System](docs/PRODUCT_CASE_STUDY.md)
+## What it does
 
-**Portfolio talk track:** [How to present the project in a résumé, interview, or client conversation](docs/PORTFOLIO_TALK_TRACK.md)
+1. Groups related photos into proposed items while keeping thumbnails visible.
+2. Captures seller-confirmed facts separately from generated copy.
+3. Generates structured titles, descriptions, and item specifics.
+4. Resolves an eBay leaf category, then pulls allowed conditions and required specifics.
+5. Creates an unpublished offer, validates its remote state, and prepares an immutable approval manifest.
+6. Publishes only after a final human approval, then reconciles the live listing.
 
-**Decision evidence:** [Inspect the workflow diagrams, code evidence, commit progression, and canary scorecard](docs/DECISION_EVIDENCE.md)
+```mermaid
+flowchart LR
+  A[Photos] --> B[Group and review]
+  B --> C[Generate supported facts and copy]
+  C --> D[Find eBay category]
+  D --> E[Pull category requirements]
+  E --> F{Exception needs judgment?}
+  F -- Yes --> G[Focused human review]
+  G --> E
+  F -- No --> H[Create unpublished offer]
+  H --> I[Preflight and immutable manifest]
+  I --> J[Final human approval]
+  J --> K[Publish and reconcile]
+```
 
-## Current status
+## Evidence, not adjectives
 
-The private Production application now supports:
+Three final, private Production reconciliation reports recorded **148 individual listing results**: 74, 16, and 58 respectively. Each report recorded unique offer and listing identities, zero final exceptions, and zero recorded manifest differences. The raw operational reports remain private; the public account is summarized in [Production Validation](docs/PRODUCTION_VALIDATION.md).
 
-1. Load and visually group personal photographs.
-2. Confirm evidence-backed facts and generate listing copy.
-3. Prepare items by resolving an eBay leaf category, allowed condition, required item specifics, policies, package data, images, and approved price.
-4. Create a safe unpublished Production offer.
-5. Run full remote preflight and review the exact listing and fees.
-6. Publish only after explicit final approval, then reconcile the live listing.
+## Cost-aware AI design
 
-A measured multi-item Production canary is the next milestone. The current throughput target is 40–50 prepared listings in a short supervised batch session; that target has not yet been validated.
-## Product principles
+Live Wire treats intelligence cost as a product constraint:
 
-- **Facts before prose:** seller-confirmed facts remain distinct from generated description text.
-- **Human review at consequential boundaries:** visual grouping suggests; the seller decides.
-- **Evidence stays visible:** each proposed item retains its associated image thumbnails.
-- **Expectation setting over hype:** condition language includes testing limits, photographed-detail disclaimers, and conservative claims.
-- **Safe marketplace integration:** Production publishing requires preparation, an unpublished offer, full preflight, an immutable manifest, fee review, and explicit final approval.
-- **Durable continuity:** Production items, photographs, remote identities, operations, and publication manifests persist server-side, with device-local continuity for active work.
+- Local code and eBay APIs handle deterministic work such as state, categories, policies, manifests, uploads, and reconciliation.
+- Luna is the routine listing-generation route.
+- Terra is an explicit enhanced-review exception for more complex image sets.
+- Sol is reserved for engineering and unusual high-risk work, not normal listing generation.
+- Cost Control v1 records model path, token usage, estimated cost, and saved-result reuse.
+- OpenRouter is evaluated as an optional, consented first-pass provider; it is not a default Production route.
 
-## Key features
+Read [Cost Control v1](docs/COST_CONTROL_V1.md) for the full decision record.
 
-- Adaptive photo grouping without a preset images-per-item count
-- Manual photo reassignment and re-grouping
-- Device-local workspace persistence with IndexedDB
-- Visible per-item thumbnail review
-- Structured category, maker, model, and condition fields
-- Photo-assisted listing generation with deterministic formatting rules
-- Separate editable eBay title and description fields
-- One-time eBay Sandbox seller setup for policies and inventory location
-- Unpublished Sandbox inventory-offer creation
-- Guided six-check MVP test bench
-- Responsive warm-charcoal dark mode with a saved preference
+## Portfolio guide
+
+- [Product case study](docs/PRODUCT_CASE_STUDY.md)
+- [Portfolio talk track](docs/PORTFOLIO_TALK_TRACK.md)
+- [Architecture](docs/ARCHITECTURE.md)
+- [Production validation](docs/PRODUCTION_VALIDATION.md)
+- [Security and human review](docs/SECURITY_AND_HUMAN_REVIEW.md)
+- [Decision evidence](docs/DECISION_EVIDENCE.md)
 
 ## Technology
 
-- TypeScript, React 19, and Next.js-compatible routing
-- Vinext and Vite for Cloudflare Worker-compatible builds
-- Cloudflare D1 with Drizzle ORM for OAuth token persistence
-- eBay OAuth, Account API, and Inventory API Sandbox integration
-- OpenAI-powered image and listing analysis
-- IndexedDB for device-local working state
-- Private deployment through OpenAI Sites
+- TypeScript, React, and Next.js-compatible routing
+- Vinext/Vite and Cloudflare Worker-compatible deployment
+- Cloudflare D1 and R2 for durable state and images
+- eBay OAuth, Account API, Inventory API, and Media API
+- OpenAI Responses API for image-aware listing generation
+- IndexedDB for device-local active-work continuity
 
 ## Safety and privacy
 
-Credentials are supplied only through hosted environment variables. They are not committed to this repository. OAuth access and refresh tokens are stored server-side; browser code never receives the eBay client secret.
+Credentials are hosted runtime values and are never committed. Raw batch photos, rescue reports, tokens, and seller-specific operational artifacts are excluded from this public repository. Live publication requires a prepared offer, remote preflight, immutable manifest, and exact final approval.
 
-The Production workflow can publish real listings only after an unpublished offer passes full preflight and the seller approves the exact immutable publication manifest. No batch action silently bypasses that final gate.
+See [Security and Human Review](docs/SECURITY_AND_HUMAN_REVIEW.md) for boundaries and limitations.
 
 ## Local development
 
-Requirements:
-
-- Node.js 22.13 or newer
-- npm
+Requirements: Node.js 22.13+ and npm.
 
 ```bash
 npm install
 npm run dev
+npm test
 ```
 
-On Windows PowerShell, set the Wrangler log path before running Vinext:
+The hosted integration expects environment variables for eBay and OpenAI credentials. Do not add values to source files, screenshots, issues, or commits.
 
-```powershell
-$env:WRANGLER_LOG_PATH = ".wrangler/wrangler.log"
-npx.cmd vinext dev
-```
+## Status
 
-Validate a production build:
+This is an active private Production application and a public portfolio repository. It demonstrates a real workflow and reconciled production results; it is not presented as a multi-tenant commercial product or a guarantee that an AI can identify every collectible without seller review.
 
-```powershell
-$env:WRANGLER_LOG_PATH = ".wrangler/wrangler.log"
-npx.cmd vinext build
-```
-
-## Hosted configuration
-
-The eBay integration expects hosted environment values including:
-
-- `EBAY_ENVIRONMENT`
-- `EBAY_CLIENT_ID`
-- `EBAY_CLIENT_SECRET`
-- `EBAY_RUNAME`
-- `EBAY_MARKETPLACE_ID`
-
-Do not place credential values in source files, screenshots, issues, or commits.
-
-## Roadmap
-
-- Multi-user roles and broader cross-device batch management
-- Stronger vision, OCR, duplicate detection, and confidence scoring
-- Evidence-linked fact provenance and contradiction review
-- Stronger taxonomy ranking and automatic item-specific mapping
-- Image upload and richer unpublished-draft management
-- Measured multi-item Production canary and throughput benchmarking
-- Watched-folder intake and exception-based batch automation
-
-## Project story
-
-This project grew from a practical antiques-listing problem: one photo folder can contain several visually similar manuals, radios, or pieces of equipment, but rigid image counts and prose-first automation introduce costly mistakes. Live Wire instead treats grouping and factual identification as reviewable evidence problems, then automates the repetitive writing and marketplace setup around those decisions.
-
-Built collaboratively by Mark Beebe and OpenAI Codex.
